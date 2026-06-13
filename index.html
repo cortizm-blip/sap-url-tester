@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAP URL Tester</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222638;
+      --border: #2e3250;
+      --accent: #4f6ef7;
+      --accent2: #7b8cff;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Cascadia Code', 'Consolas', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; min-height: 100vh; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    header .logo { font-size: 18px; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+    header .sub { color: var(--muted); font-size: 12px; }
+    header .badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+    .layout { display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 53px); }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .tab-btn {
+      flex: 1; padding: 10px; background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 13px;
+      font-family: var(--font); transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    textarea { resize: vertical; font-family: var(--mono); font-size: 12px; min-height: 120px; }
+
+    .field { display: flex; flex-direction: column; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn {
+      padding: 9px 16px; border: none; border-radius: 6px; cursor: pointer;
+      font-size: 13px; font-weight: 600; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+    .hint { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .hint code { background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-family: var(--mono); }
+
+    /* MAIN CONTENT */
+    .main { display: flex; flex-direction: column; overflow: hidden; }
+
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .stats { display: flex; gap: 20px; margin-left: auto; }
+    .stat { text-align: right; }
+    .stat .val { font-size: 20px; font-weight: 700; line-height: 1; }
+    .stat .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .stat.ok .val { color: var(--green); }
+    .stat.fail .val { color: var(--red); }
+    .stat.pend .val { color: var(--yellow); }
+
+    .results-wrap { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--muted); gap: 8px; padding: 40px;
+    }
+    .empty-state .icon { font-size: 40px; opacity: 0.4; }
+    .empty-state p { font-size: 13px; text-align: center; }
+
+    /* RESULT CARD */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .result-card:hover { border-color: var(--border); }
+    .result-card.ok { border-left: 3px solid var(--green); }
+    .result-card.fail { border-left: 3px solid var(--red); }
+    .result-card.pending { border-left: 3px solid var(--yellow); }
+
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; cursor: pointer;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.ok { background: var(--green); }
+    .status-dot.fail { background: var(--red); box-shadow: 0 0 4px var(--red); }
+    .status-dot.pending { background: var(--yellow); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .card-name { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; }
+    .card-url { font-size: 11px; color: var(--muted); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+    .card-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .badge-type { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+    .badge-type.soamanager { background: #1e3a5f; color: #60a5fa; }
+    .badge-type.apirest { background: #1a3a2a; color: #4ade80; }
+
+    .badge-status {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+    }
+    .badge-status.ok { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge-status.fail { background: rgba(239,68,68,0.15); color: var(--red); }
+    .badge-status.pending { background: rgba(245,158,11,0.15); color: var(--yellow); }
+
+    .elapsed { font-size: 11px; color: var(--muted); min-width: 52px; text-align: right; }
+    .chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
+    .result-card.expanded .chevron { transform: rotate(180deg); }
+
+    .card-body { padding: 0 14px 12px; display: none; }
+    .result-card.expanded .card-body { display: block; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .detail-item { background: var(--surface2); border-radius: 6px; padding: 8px 10px; }
+    .detail-item .key { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+    .detail-item .val { font-size: 13px; font-weight: 600; font-family: var(--mono); word-break: break-all; }
+
+    .preview-box {
+      background: var(--surface2); border-radius: 6px; padding: 10px;
+      font-family: var(--mono); font-size: 11px; color: #94a3b8;
+      max-height: 100px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+    }
+    .preview-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+
+    /* PROGRESS */
+    .progress-bar {
+      height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin: 4px 0;
+    }
+    .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+
+    /* EXPORT */
+    .export-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">⚡ SAP URL Tester</div>
+    <div class="sub">SOA Manager · API REST · Conectividad desde internet</div>
+  </div>
+  <div class="badge">v1.0</div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" onclick="switchTab('single')">URL Única</button>
+      <button class="tab-btn" onclick="switchTab('batch')">Batch (CSV)</button>
+    </div>
+
+    <div class="sidebar-content">
+
+      <!-- CREDENCIALES GLOBALES -->
+      <div class="field">
+        <label>Usuario SAP (global)</label>
+        <input id="globalUser" type="text" placeholder="RFCUSER" />
+      </div>
+      <div class="field">
+        <label>Contraseña SAP (global)</label>
+        <input id="globalPass" type="password" placeholder="••••••••" />
+      </div>
+
+      <hr class="divider" />
+
+      <!-- TAB: URL ÚNICA -->
+      <div id="tab-single">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="field">
+            <label>URL</label>
+            <input id="singleUrl" type="text" placeholder="https://sap-host.empresa.cl/sap/bc/..." />
+          </div>
+          <div class="field">
+            <label>Nombre / Descripción</label>
+            <input id="singleName" type="text" placeholder="RFC_BSEG_WSDL" />
+          </div>
+          <div class="field">
+            <label>Tipo</label>
+            <select id="singleType">
+              <option value="soamanager">SOA Manager (WSDL)</option>
+              <option value="apirest">API REST (SICF)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="testSingle()">▶ Probar URL</button>
+        </div>
+      </div>
+
+      <!-- TAB: BATCH -->
+      <div id="tab-batch" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="field">
+            <label>URLs en CSV</label>
+            <textarea id="batchCsv" placeholder="nombre,url,tipo&#10;BSEG_WSDL,https://host/sap/bc/srt/wsdl/...,soamanager&#10;API_PEDIDOS,https://host/sap/bc/rest/...,apirest&#10;&#10;(tipo: soamanager | apirest)"></textarea>
+          </div>
+          <p class="hint">Formato: <code>nombre,url,tipo</code> — una por línea. El tipo es opcional (default: apirest). Usa las credenciales globales de arriba.</p>
+          <div class="export-row">
+            <button class="btn btn-primary" style="flex:1" onclick="testBatch()">▶ Probar Todo</button>
+            <button class="btn btn-ghost" onclick="loadSample()">Ejemplo</button>
+          </div>
+          <div id="batchProgress" style="display:none">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px" id="progressLabel">Procesando...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- EXPORT -->
+      <div>
+        <label>Exportar resultados</label>
+        <div class="export-row" style="margin-top:6px">
+          <button class="btn btn-ghost" style="flex:1;font-size:12px" onclick="exportCSV()">📄 CSV</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:12px" onclick="exportJSON()">{ } JSON</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:12px" onclick="clearResults()">🗑 Limpiar</button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="toolbar">
+      <span style="font-size:13px;color:var(--muted)">Resultados</span>
+      <div class="stats">
+        <div class="stat ok"><div class="val" id="countOk">0</div><div class="lbl">OK</div></div>
+        <div class="stat fail"><div class="val" id="countFail">0</div><div class="lbl">Error</div></div>
+        <div class="stat pend"><div class="val" id="countPend">0</div><div class="lbl">Pendiente</div></div>
+      </div>
+    </div>
+
+    <div class="results-wrap" id="resultsWrap">
+      <div class="empty-state">
+        <div class="icon">🔌</div>
+        <p>Ingresa una URL o carga un CSV para probar<br/>la conectividad desde internet sin VPN</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let allResults = [];
+  let activeTab = 'single';
+
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='single')||(i===1&&tab==='batch')));
+    document.getElementById('tab-single').style.display = tab === 'single' ? 'block' : 'none';
+    document.getElementById('tab-batch').style.display = tab === 'batch' ? 'block' : 'none';
+  }
+
+  function getGlobalCreds() {
+    return {
+      user: document.getElementById('globalUser').value.trim(),
+      pass: document.getElementById('globalPass').value.trim()
+    };
+  }
+
+  // ── TEST SINGLE ──────────────────────────────────────────────
+  async function testSingle() {
+    const url = document.getElementById('singleUrl').value.trim();
+    const name = document.getElementById('singleName').value.trim() || url;
+    const type = document.getElementById('singleType').value;
+    if (!url) return alert('Ingresa una URL');
+
+    const { user, pass } = getGlobalCreds();
+    const card = addPendingCard({ name, url, type });
+
+    try {
+      const res = await fetch('/api/test-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, username: user, password: pass, type })
+      });
+      const data = await res.json();
+      data.name = name;
+      updateCard(card, data);
+      saveResult(data);
+    } catch (e) {
+      updateCard(card, { ok: false, error: e.message, error_type: 'ERROR INTERNO', reachable: false });
+    }
+  }
+
+  // ── TEST BATCH ───────────────────────────────────────────────
+  async function testBatch() {
+    const csv = document.getElementById('batchCsv').value.trim();
+    if (!csv) return alert('Pega el CSV de URLs');
+
+    const { user, pass } = getGlobalCreds();
+    const lines = csv.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+
+    const urls = lines.map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      // Detectar si primera col es nombre o URL
+      if (parts[0].startsWith('http')) {
+        return { name: parts[0], url: parts[0], type: parts[1] || 'apirest' };
+      }
+      return { name: parts[0], url: parts[1], type: parts[2] || 'apirest' };
+    }).filter(u => u.url);
+
+    if (urls.length === 0) return alert('No se detectaron URLs válidas');
+
+    // Mostrar progress
+    const prog = document.getElementById('batchProgress');
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    prog.style.display = 'block';
+
+    // Crear cards pending
+    const cards = {};
+    urls.forEach(u => { cards[u.url] = addPendingCard(u); });
+
+    // Procesar de a 5 en paralelo
+    const CONCURRENCY = 5;
+    let done = 0;
+    for (let i = 0; i < urls.length; i += CONCURRENCY) {
+      const batch = urls.slice(i, i + CONCURRENCY);
+      await Promise.all(batch.map(async (item) => {
+        try {
+          const res = await fetch('/api/test-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: item.url, username: user, password: pass, type: item.type })
+          });
+          const data = await res.json();
+          data.name = item.name;
+          updateCard(cards[item.url], data);
+          saveResult(data);
+        } catch (e) {
+          updateCard(cards[item.url], { ok: false, error: e.message, error_type: 'ERROR', reachable: false });
+        }
+        done++;
+        const pct = Math.round((done / urls.length) * 100);
+        fill.style.width = pct + '%';
+        label.textContent = `Procesando ${done}/${urls.length}...`;
+      }));
+    }
+    label.textContent = `✓ Completado — ${urls.length} URLs probadas`;
+    setTimeout(() => { prog.style.display = 'none'; }, 3000);
+  }
+
+  // ── CARD HELPERS ─────────────────────────────────────────────
+  function addPendingCard(item) {
+    clearEmpty();
+    const wrap = document.getElementById('resultsWrap');
+    const div = document.createElement('div');
+    div.className = 'result-card pending';
+    div.innerHTML = `
+      <div class="card-header" onclick="toggleCard(this.parentElement)">
+        <span class="status-dot pending"></span>
+        <div style="flex:1;min-width:0">
+          <div class="card-name">${escHtml(item.name || item.url)}</div>
+          <div class="card-url">${escHtml(item.url)}</div>
+        </div>
+        <div class="card-meta">
+          <span class="badge-type ${item.type}">${item.type === 'soamanager' ? 'SOA' : 'REST'}</span>
+          <span class="badge-status pending">Probando...</span>
+          <span class="elapsed">—</span>
+          <span class="chevron">▼</span>
+        </div>
+      </div>
+      <div class="card-body"></div>
+    `;
+    wrap.insertBefore(div, wrap.firstChild);
+    updateCounters();
+    return div;
+  }
+
+  function updateCard(card, data) {
+    const ok = data.ok;
+    card.className = 'result-card ' + (ok ? 'ok' : 'fail');
+
+    const dot = card.querySelector('.status-dot');
+    dot.className = 'status-dot ' + (ok ? 'ok' : 'fail');
+
+    const badge = card.querySelector('.badge-status');
+    badge.className = 'badge-status ' + (ok ? 'ok' : 'fail');
+
+    if (data.reachable === false && !ok) {
+      badge.textContent = data.error_type || 'Sin acceso';
+    } else if (data.status) {
+      badge.textContent = `HTTP ${data.status} — ${data.auth_status || ''}`;
+    } else {
+      badge.textContent = ok ? 'OK' : 'Error';
+    }
+
+    const elapsed = card.querySelector('.elapsed');
+    elapsed.textContent = data.elapsed_ms ? `${data.elapsed_ms}ms` : '—';
+
+    // Body detail
+    const body = card.querySelector('.card-body');
+    body.innerHTML = buildDetailHtml(data);
+
+    updateCounters();
+  }
+
+  function buildDetailHtml(d) {
+    const rows = [
+      ['URL', d.url || '—'],
+      ['Estado HTTP', d.status ? `${d.status} ${d.statusText || ''}` : '—'],
+      ['Tiempo', d.elapsed_ms ? `${d.elapsed_ms} ms` : '—'],
+      ['Accesible', d.reachable ? '✓ Sí' : '✗ No'],
+      ['Auth', d.auth_status || '—'],
+      ['Content-Type', d.content_type || '—'],
+    ];
+    if (d.type === 'soamanager') rows.push(['WSDL válido', d.has_wsdl ? '✓ Sí' : '✗ No / No detectado']);
+    if (d.error_type) rows.push(['Tipo error', d.error_type]);
+    if (d.error) rows.push(['Detalle error', d.error]);
+
+    let html = '<div class="detail-grid">';
+    rows.forEach(([k, v]) => {
+      html += `<div class="detail-item"><div class="key">${k}</div><div class="val">${escHtml(String(v))}</div></div>`;
+    });
+    html += '</div>';
+
+    if (d.body_preview) {
+      html += `<div class="preview-label">Preview respuesta</div><div class="preview-box">${escHtml(d.body_preview)}</div>`;
+    }
+    return html;
+  }
+
+  function toggleCard(card) {
+    card.classList.toggle('expanded');
+  }
+
+  function clearEmpty() {
+    const e = document.querySelector('.empty-state');
+    if (e) e.remove();
+  }
+
+  function saveResult(data) {
+    allResults.push(data);
+  }
+
+  function updateCounters() {
+    const cards = document.querySelectorAll('.result-card');
+    let ok = 0, fail = 0, pend = 0;
+    cards.forEach(c => {
+      if (c.classList.contains('ok')) ok++;
+      else if (c.classList.contains('fail')) fail++;
+      else pend++;
+    });
+    document.getElementById('countOk').textContent = ok;
+    document.getElementById('countFail').textContent = fail;
+    document.getElementById('countPend').textContent = pend;
+  }
+
+  // ── EXPORT ───────────────────────────────────────────────────
+  function exportCSV() {
+    if (!allResults.length) return alert('Sin resultados aún');
+    const headers = ['name','url','type','ok','reachable','status','auth_status','elapsed_ms','error_type','error','has_wsdl'];
+    const rows = allResults.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','));
+    download('sap-test-results.csv', [headers.join(','), ...rows].join('\n'), 'text/csv');
+  }
+
+  function exportJSON() {
+    if (!allResults.length) return alert('Sin resultados aún');
+    download('sap-test-results.json', JSON.stringify(allResults, null, 2), 'application/json');
+  }
+
+  function clearResults() {
+    allResults = [];
+    document.getElementById('resultsWrap').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔌</div>
+        <p>Ingresa una URL o carga un CSV para probar<br/>la conectividad desde internet sin VPN</p>
+      </div>`;
+    updateCounters();
+  }
+
+  function download(filename, content, mime) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+    a.download = filename;
+    a.click();
+  }
+
+  function loadSample() {
+    document.getElementById('batchCsv').value = `nombre,url,tipo
+BSEG_WSDL,https://sap-qa.empresa.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zrfc_bseg?sap-client=100,soamanager
+PEDIDO_B2B_WSDL,https://sap-qa.empresa.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zsdfn_crea_pedido_b2b?sap-client=100,soamanager
+API_CLIENTES,https://sap-qa.empresa.cl/sap/bc/rest/clientes,apirest
+API_MATERIALES,https://sap-qa.empresa.cl/sap/bc/rest/materiales,apirest`;
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
