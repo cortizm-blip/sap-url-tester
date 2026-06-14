@@ -4,13 +4,19 @@ const https = require("https");
 const path = require("path");
 const multer = require("multer");
 const XLSX = require("xlsx");
+const fs = require("fs");
+const os = require("os");
 
 const app = express();
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "20mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const upload = multer({ storage: multer.memoryStorage() });
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
+// Guardar Excel en temp
+let tempExcelPath = null;
+let tempExcelName = "resultado.xlsx";
 
 // ── Test URL ──────────────────────────────────────────────────
 async function testUrl({ url, username, password, type }) {
@@ -29,7 +35,6 @@ async function testUrl({ url, username, password, type }) {
     });
     const elapsed = Date.now() - startTime;
     const bodyText = await response.text();
-
     result.status = response.status;
     result.statusText = response.statusText;
     result.elapsed_ms = elapsed;
@@ -81,17 +86,23 @@ function parseWsdl(xml, sourceUrl) {
   return info;
 }
 
-// ── Endpoints ─────────────────────────────────────────────────
+// ── Test single URL ───────────────────────────────────────────
 app.post("/api/test-url", async (req, res) => {
   const { url, username, password, type } = req.body;
   if (!url) return res.status(400).json({ error: "URL requerida" });
   res.json(await testUrl({ url, username, password, type }));
 });
 
-// ── Parse Excel ───────────────────────────────────────────────
+// ── Parse Excel — guarda archivo en temp ─────────────────────
 app.post("/api/parse-excel", upload.single("file"), (req, res) => {
   try {
-    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    const buffer = req.file.buffer;
+    // Guardar en temp para usar después en export
+    tempExcelPath = path.join(os.tmpdir(), "sap_tester_upload.xlsx");
+    tempExcelName = req.file.originalname;
+    fs.writeFileSync(tempExcelPath, buffer);
+
+    const workbook = XLSX.read(buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
@@ -114,94 +125,98 @@ app.post("/api/parse-excel", upload.single("file"), (req, res) => {
       }
       if (url && url.startsWith("http")) {
         urls.push({
-          rowIndex: i + (hasHeader ? 2 : 1), // 1-based Excel row
-          name: name || url,
-          url,
+          name: name || url, url,
           type: type.toLowerCase().includes("soa") ? "soamanager" : "apirest"
         });
       }
     }
-    // Guardar el buffer original en memoria para usarlo en export
-    // Lo devolvemos como base64 para que el frontend lo guarde
-    const xlsxBase64 = req.file.buffer.toString("base64");
-    res.json({ count: urls.length, urls, xlsxBase64, fileName: req.file.originalname });
+    res.json({ count: urls.length, urls, fileName: req.file.originalname });
   } catch (e) {
     res.status(400).json({ error: "Error leyendo Excel: " + e.message });
   }
 });
 
 // ── Export Excel con estatus coloreado ────────────────────────
-app.post("/api/export-excel", express.json({ limit: "20mb" }), (req, res) => {
+app.post("/api/export-excel", (req, res) => {
   try {
-    const { xlsxBase64, fileName, results } = req.body;
-    // results: [{ url, ok, status, error_type }]
+    const { results, fileName } = req.body;
+    if (!results || !results.length) return res.status(400).json({ error: "Sin resultados" });
+    if (!tempExcelPath || !fs.existsSync(tempExcelPath))
+      return res.status(400).json({ error: "No hay Excel cargado. Sube el archivo Excel primero." });
 
-    const buffer = Buffer.from(xlsxBase64, "base64");
+    const buffer = fs.readFileSync(tempExcelPath);
     const workbook = XLSX.read(buffer, { type: "buffer", cellStyles: true });
     const sheetName = workbook.SheetNames[0];
     const ws = workbook.Sheets[sheetName];
-
-    // Obtener rango
     const range = XLSX.utils.decode_range(ws["!ref"] || "A1:D1");
 
-    // Encontrar columna "Estatus" en header (fila 1)
-    let estatusCol = 3; // default columna D (index 3)
+    // Detectar columnas por header
+    let urlCol = 1, nombreCol = 0, estatusCol = 3;
     for (let c = range.s.c; c <= range.e.c; c++) {
       const cell = ws[XLSX.utils.encode_cell({ r: 0, c })];
-      if (cell && String(cell.v).toLowerCase().includes("estatus")) {
-        estatusCol = c;
-        break;
-      }
+      if (!cell) continue;
+      const v = String(cell.v).toLowerCase().trim();
+      if (v === "url") urlCol = c;
+      if (v === "nombre" || v === "name") nombreCol = c;
+      if (v.includes("estatus") || v.includes("status")) estatusCol = c;
     }
 
-    // Encontrar columna URL
-    let urlCol = 1; // default columna B
-    for (let c = range.s.c; c <= range.e.c; c++) {
-      const cell = ws[XLSX.utils.encode_cell({ r: 0, c })];
-      if (cell && String(cell.v).toLowerCase() === "url") {
-        urlCol = c;
-        break;
-      }
+    // Mapa por URL y por nombre
+    const byUrl = {}, byName = {};
+    for (const r of results) {
+      if (r.url) byUrl[r.url.trim()] = r;
+      if (r.name) byName[r.name.trim()] = r;
     }
 
-    // Crear mapa url -> resultado
-    const resultMap = {};
-    for (const r of results) resultMap[r.url] = r;
-
-    // Recorrer filas de datos (desde fila 2, index 1)
+    let updated = 0;
     for (let row = 1; row <= range.e.r; row++) {
-      const urlCell = ws[XLSX.utils.encode_cell({ r: row, c: urlCol })];
-      if (!urlCell) continue;
-      const url = String(urlCell.v).trim();
-      const result = resultMap[url];
+      const urlCell    = ws[XLSX.utils.encode_cell({ r: row, c: urlCol })];
+      const nombreCell = ws[XLSX.utils.encode_cell({ r: row, c: nombreCol })];
+      if (!urlCell && !nombreCell) continue;
+
+      const urlVal    = urlCell    ? String(urlCell.v).trim()    : "";
+      const nombreVal = nombreCell ? String(nombreCell.v).trim() : "";
+
+      // Match por URL exacta primero, luego por nombre
+      const result = byUrl[urlVal] || byName[nombreVal];
       if (!result) continue;
 
-      const addr = XLSX.utils.encode_cell({ r: row, c: estatusCol });
       const ok = result.ok;
-      const statusText = ok
-        ? `OK - HTTP ${result.status}`
-        : result.error_type || `ERROR - HTTP ${result.status || "N/A"}`;
+      let statusText = "";
+      if (ok) {
+        statusText = `OK - HTTP ${result.status}`;
+      } else if (!result.reachable) {
+        statusText = result.error_type || "ERROR - Sin conexión";
+      } else {
+        statusText = `ERROR - HTTP ${result.status || "N/A"}`;
+      }
 
+      const addr = XLSX.utils.encode_cell({ r: row, c: estatusCol });
       ws[addr] = {
-        v: statusText,
-        t: "s",
+        v: statusText, t: "s",
         s: {
-          fill: { fgColor: { rgb: ok ? "C6EFCE" : "FFC7CE" } },
-          font: { color: { rgb: ok ? "276221" : "9C0006" }, bold: true },
-          alignment: { horizontal: "center" }
+          fill: { patternType: "solid", fgColor: { rgb: ok ? "C6EFCE" : "FFC7CE" } },
+          font: { color: { rgb: ok ? "276221" : "9C0006" }, bold: true, sz: 11 },
+          alignment: { horizontal: "center", vertical: "center" }
         }
       };
+      updated++;
     }
 
-    // Actualizar rango si estatus col está fuera
+    // Asegurar que la columna Estatus esté dentro del rango
     if (estatusCol > range.e.c) range.e.c = estatusCol;
     ws["!ref"] = XLSX.utils.encode_range(range);
 
+    // Ajustar ancho columna Estatus
+    if (!ws["!cols"]) ws["!cols"] = [];
+    ws["!cols"][estatusCol] = { wch: 22 };
+
     const outBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx", cellStyles: true });
-    const outName = (fileName || "resultado").replace(".xlsx", "") + "_estatus.xlsx";
+    const outName = (tempExcelName || "resultado").replace(/\.xlsx$/i, "") + "_estatus.xlsx";
 
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.setHeader("Content-Disposition", `attachment; filename="${outName}"`);
+
     res.send(outBuffer);
   } catch (e) {
     res.status(500).json({ error: "Error generando Excel: " + e.message });
