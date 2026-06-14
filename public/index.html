@@ -115,6 +115,23 @@ hr{border:none;border-top:1px solid #2e3250}
 .tag-out{background:rgba(245,158,11,.12);color:#f59e0b;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
 .exp-row{display:flex;gap:7px}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e3250;border-radius:3px}
+
+/* MINI TESTER */
+.mt{background:#1a2035;border:1px solid #2e3250;border-radius:7px;padding:12px;margin-top:10px}
+.mt-title{font-size:10px;font-weight:700;color:#7b8cff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.mt-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.mt-method{background:#222638;border:1px solid #2e3250;color:#e2e8f0;padding:6px 8px;border-radius:5px;font-size:12px;font-weight:700;width:90px;cursor:pointer}
+.mt-url{flex:1;background:#222638;border:1px solid #2e3250;color:#64748b;padding:6px 8px;border-radius:5px;font-size:11px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-body{width:100%;background:#222638;border:1px solid #2e3250;color:#e2e8f0;padding:7px 9px;border-radius:5px;font-family:monospace;font-size:11px;resize:vertical;min-height:60px;margin-bottom:8px}
+.mt-btn{background:#4f6ef7;color:#fff;border:none;border-radius:5px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;width:100%}
+.mt-btn:hover{background:#7b8cff}
+.mt-btn:disabled{opacity:.5;cursor:not-allowed}
+.mt-resp{background:#0f1117;border-radius:5px;padding:10px;font-family:monospace;font-size:10px;color:#94a3b8;max-height:150px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px;display:none}
+.mt-resp.show{display:block}
+.mt-resp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mt-resp-status{font-size:11px;font-weight:700}
+.mt-resp-status.ok{color:#22c55e}.mt-resp-status.err{color:#ef4444}.mt-resp-status.warn{color:#f59e0b}
+.mt-resp-time{font-size:10px;color:#64748b}
 </style>
 </head>
 <body>
@@ -398,7 +415,34 @@ function buildBody(d) {
     h += `<div class="di"><div class="k">${k}</div><div class="v ${vc}">${esc(String(v))}</div></div>`;
   });
   h += '</div>';
-  if (d.body_preview && !d.wsdl_info) h += `<div class="prev-lbl">Preview</div><div class="prev">${esc(d.body_preview)}</div>`;
+  if (d.body_preview && !d.wsdl_info) h += `<div class="prev-lbl">Preview respuesta</div><div class="prev">${esc(d.body_preview)}</div>`;
+
+  // Mini tester para API REST
+  if (d.type === 'apirest') {
+    const uid = 'mt_' + Math.random().toString(36).substr(2,8);
+    h += `<div class="mt">
+      <div class="mt-title">🔬 Probar Request</div>
+      <div class="mt-row">
+        <select class="mt-method" id="${uid}_method">
+          <option value="GET">GET</option>
+          <option value="POST" selected>POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <div class="mt-url" title="${esc(d.url)}">${esc(d.url)}</div>
+      </div>
+      <textarea class="mt-body" id="${uid}_body" placeholder='Body JSON (opcional):&#10;{&#10;  "campo": "valor"&#10;}'></textarea>
+      <button class="mt-btn" id="${uid}_btn" onclick="runMiniTest('${uid}','${esc(d.url)}')">▶ Enviar Request</button>
+      <div class="mt-resp" id="${uid}_resp">
+        <div class="mt-resp-header">
+          <span class="mt-resp-status" id="${uid}_status"></span>
+          <span class="mt-resp-time" id="${uid}_time"></span>
+        </div>
+        <div id="${uid}_body_resp"></div>
+      </div>
+    </div>`;
+  }
+
   return h;
 }
 
@@ -528,6 +572,56 @@ async function retryPending() {
   } else {
     document.getElementById('btnRetry').style.display = 'none';
   }
+}
+
+async function runMiniTest(uid, url) {
+  const method = document.getElementById(uid+'_method').value;
+  const bodyTxt = document.getElementById(uid+'_body').value.trim();
+  const btn = document.getElementById(uid+'_btn');
+  const respDiv = document.getElementById(uid+'_resp');
+  const statusEl = document.getElementById(uid+'_status');
+  const timeEl = document.getElementById(uid+'_time');
+  const bodyResp = document.getElementById(uid+'_body_resp');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  respDiv.classList.remove('show');
+
+  const { user, pass } = creds();
+
+  try {
+    const r = await fetch('/api/custom-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, method,
+        body: bodyTxt || null,
+        username: user,
+        password: pass
+      })
+    });
+    const d = await r.json();
+
+    respDiv.classList.add('show');
+    const ok = d.status >= 200 && d.status < 400;
+    const warn = d.status >= 400 && d.status < 500;
+    statusEl.className = 'mt-resp-status ' + (ok ? 'ok' : warn ? 'warn' : 'err');
+    statusEl.textContent = `HTTP ${d.status} ${d.statusText || ''}`;
+    timeEl.textContent = d.elapsed_ms + 'ms';
+
+    // Pretty print JSON or show raw
+    let bodyStr = d.body || '';
+    try { bodyStr = JSON.stringify(JSON.parse(bodyStr), null, 2); } catch(e) {}
+    bodyResp.textContent = bodyStr.substring(0, 2000) || '(sin body)';
+  } catch(e) {
+    respDiv.classList.add('show');
+    statusEl.className = 'mt-resp-status err';
+    statusEl.textContent = 'Error: ' + e.message;
+    bodyResp.textContent = '';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Enviar Request';
 }
 
 function exportCSV() {
