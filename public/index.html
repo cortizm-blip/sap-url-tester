@@ -7,31 +7,26 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f1117;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
-
 .hdr{background:#1a1d27;border-bottom:1px solid #2e3250;padding:12px 20px;display:flex;align-items:center;gap:10px}
 .hdr-logo{font-size:17px;font-weight:700;color:#7b8cff}
 .hdr-sub{color:#64748b;font-size:11px}
 .hdr-badge{margin-left:auto;background:#4f6ef7;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700}
-
 .layout{display:flex;height:calc(100vh - 53px)}
-
 .sb{width:320px;flex-shrink:0;background:#1a1d27;border-right:1px solid #2e3250;display:flex;flex-direction:column;overflow:hidden}
 .sb-tabs{display:flex;border-bottom:1px solid #2e3250;flex-shrink:0}
 .sb-tab{flex:1;padding:9px;background:none;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .sb-tab.on{color:#7b8cff;border-bottom-color:#4f6ef7}
 .sb-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-
 label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
 input,select,textarea{width:100%;background:#222638;border:1px solid #2e3250;color:#e2e8f0;padding:7px 9px;border-radius:6px;font-size:13px;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#4f6ef7}
 textarea{resize:vertical;font-family:monospace;font-size:11px;min-height:90px}
 hr{border:none;border-top:1px solid #2e3250}
-
 .btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
 .btn-p{background:#4f6ef7;color:#fff}.btn-p:hover{background:#7b8cff}
 .btn-g{background:#222638;color:#e2e8f0;border:1px solid #2e3250}.btn-g:hover{border-color:#4f6ef7;color:#7b8cff}
+.btn-xl{background:#16a34a;color:#fff}.btn-xl:hover{background:#15803d}
 .row{display:flex;gap:8px}
-
 .dz{border:2px dashed #2e3250;border-radius:8px;padding:16px;text-align:center;cursor:pointer;background:#222638;transition:all .2s}
 .dz:hover,.dz.over{border-color:#4f6ef7;background:rgba(79,110,247,.06)}
 .dz-icon{font-size:24px;margin-bottom:4px}
@@ -39,44 +34,34 @@ hr{border:none;border-top:1px solid #2e3250}
 .dz-col{font-size:10px;color:#64748b;margin-top:2px}
 .dz-ok{color:#22c55e;font-size:11px;font-weight:600;margin-top:4px}
 #fi{display:none}
-
 .prog{display:none;margin-top:4px}
 .prog-lbl{font-size:11px;color:#64748b;margin-bottom:3px}
 .prog-bar{height:4px;background:#2e3250;border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:#4f6ef7;transition:width .3s;border-radius:2px}
-
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .toolbar{background:#1a1d27;border-bottom:1px solid #2e3250;padding:9px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .stats{display:flex;gap:18px;margin-left:auto}
 .stat .v{font-size:20px;font-weight:700;line-height:1}
 .stat .l{font-size:9px;color:#64748b;text-transform:uppercase}
 .stat.ok .v{color:#22c55e}.stat.er .v{color:#ef4444}.stat.pe .v{color:#f59e0b}
-
 .rtabs{display:flex;background:#1a1d27;border-bottom:1px solid #2e3250;padding:0 18px;flex-shrink:0}
 .rtab{padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .rtab.on{color:#7b8cff;border-bottom-color:#4f6ef7}
-
 .pane{display:none;flex:1;overflow-y:auto;padding:14px 18px}
 .pane.on{display:block}
-
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#64748b;gap:8px;text-align:center}
 .empty-icon{font-size:36px;opacity:.35}
-
-/* CARDS */
 .rc{background:#1a1d27;border:1px solid #2e3250;border-radius:8px;margin-bottom:8px;overflow:hidden}
 .rc.ok{border-left:3px solid #22c55e}
 .rc.fail{border-left:3px solid #ef4444}
 .rc.pend{border-left:3px solid #f59e0b}
-
 .rc-head{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer;user-select:none}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dot.ok{background:#22c55e}.dot.fail{background:#ef4444;box-shadow:0 0 4px #ef4444}.dot.pend{background:#f59e0b;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
 .rc-names{flex:1;min-width:0}
 .rc-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-url{font-size:10px;color:#64748b;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
 .rc-meta{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .bt{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;text-transform:uppercase}
 .bt.soa{background:#1e3a5f;color:#60a5fa}.bt.rest{background:#1a3a2a;color:#4ade80}
@@ -85,20 +70,15 @@ hr{border:none;border-top:1px solid #2e3250}
 .elapsed{font-size:10px;color:#64748b;min-width:46px;text-align:right}
 .chev{color:#64748b;font-size:10px;transition:transform .2s;flex-shrink:0}
 .rc.open .chev{transform:rotate(180deg)}
-
 .rc-body{display:none;padding:0 12px 12px}
 .rc.open .rc-body{display:block}
-
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
 .di{background:#222638;border-radius:5px;padding:7px 9px}
 .di .k{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:2px}
 .di .v{font-size:11px;font-weight:600;font-family:monospace;word-break:break-all}
 .di .v.g{color:#22c55e}.di .v.r{color:#ef4444}
-
 .prev-lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px;margin-top:6px}
 .prev{background:#222638;border-radius:5px;padding:9px;font-family:monospace;font-size:10px;color:#94a3b8;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
-
-/* WSDL GRAPH */
 .wg{background:#1e2235;border:1px solid #2e3250;border-radius:8px;padding:14px;margin-bottom:10px}
 .wg-title{font-size:10px;font-weight:700;color:#7b8cff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
 .wg-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -111,18 +91,14 @@ hr{border:none;border-top:1px solid #2e3250}
 .wg-arr{text-align:center;color:#64748b;flex-shrink:0}
 .wg-arr .a{font-size:16px;display:block}
 .wg-arr .al{font-size:9px}
-
 .wg-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .wg-mi{font-size:10px}
 .wg-mi .k{color:#64748b}
 .wg-mi .v{color:#e2e8f0;font-family:monospace;font-weight:600}
-
 .wg-ops{margin-top:10px}
 .wg-ops-lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:5px;font-weight:700}
 .wg-ops-list{display:flex;flex-wrap:wrap;gap:5px}
 .wg-op{background:rgba(79,110,247,.1);border:1px solid rgba(79,110,247,.3);color:#7b8cff;font-size:10px;padding:2px 7px;border-radius:4px;font-family:monospace}
-
-/* WSDL TAB */
 .wc{background:#1a1d27;border:1px solid #2e3250;border-left:3px solid #4f6ef7;border-radius:8px;margin-bottom:10px;overflow:hidden}
 .wc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
 .wc-head:hover{background:rgba(79,110,247,.04)}
@@ -131,28 +107,21 @@ hr{border:none;border-top:1px solid #2e3250}
 .wc-body{display:none;padding:0 14px 14px}
 .wc.open .wc-body{display:block}
 .wc.open .chev{transform:rotate(180deg)}
-
 .ptable{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 .ptable th{background:#222638;padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:700}
 .ptable td{padding:5px 8px;border-bottom:1px solid #2e3250;font-family:monospace;font-size:10px}
 .ptable tr:last-child td{border-bottom:none}
 .tag-in{background:rgba(34,197,94,.12);color:#22c55e;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
 .tag-out{background:rgba(245,158,11,.12);color:#f59e0b;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
-
 .exp-row{display:flex;gap:7px}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e3250;border-radius:3px}
 </style>
 </head>
 <body>
-
 <div class="hdr">
-  <div>
-    <div class="hdr-logo">⚡ SAP URL Tester</div>
-    <div class="hdr-sub">SOA Manager · API REST · Conectividad desde internet</div>
-  </div>
-  <div class="hdr-badge">v2.2</div>
+  <div><div class="hdr-logo">⚡ SAP URL Tester</div><div class="hdr-sub">SOA Manager · API REST · Conectividad desde internet</div></div>
+  <div class="hdr-badge">v2.3</div>
 </div>
-
 <div class="layout">
 <aside class="sb">
   <div class="sb-tabs">
@@ -164,6 +133,7 @@ hr{border:none;border-top:1px solid #2e3250}
     <div><label>Contraseña SAP</label><input id="gPass" type="password" placeholder="••••••••"/></div>
     <hr/>
 
+    <!-- SINGLE -->
     <div id="tp-single">
       <div style="display:flex;flex-direction:column;gap:9px">
         <div><label>URL</label><input id="sUrl" placeholder="https://host.empresa.cl/sap/bc/..."/></div>
@@ -175,6 +145,7 @@ hr{border:none;border-top:1px solid #2e3250}
       </div>
     </div>
 
+    <!-- BATCH -->
     <div id="tp-batch" style="display:none">
       <div style="display:flex;flex-direction:column;gap:9px">
         <div>
@@ -182,7 +153,7 @@ hr{border:none;border-top:1px solid #2e3250}
           <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
             <div class="dz-icon">📊</div>
             <p>Arrastra tu Excel aquí o haz click</p>
-            <div class="dz-col">Columnas: <strong>Nombre | URL | Tipo</strong></div>
+            <div class="dz-col">Columnas: <strong>Nombre | URL | Tipo | Estatus</strong></div>
             <div class="dz-ok" id="dzOk"></div>
           </div>
           <input type="file" id="fi" accept=".xlsx,.xls" onchange="handleFile(this.files[0])"/>
@@ -208,8 +179,9 @@ hr{border:none;border-top:1px solid #2e3250}
         <button class="btn btn-g" style="flex:1;font-size:11px" onclick="exportJSON()">{ } JSON</button>
         <button class="btn btn-g" style="flex:1;font-size:11px" onclick="clearAll()">🗑 Limpiar</button>
       </div>
-      <button class="btn btn-p" style="width:100%;font-size:12px;margin-top:6px" onclick="downloadExcel()">📥 Descargar Excel con Estatus</button>
-      </div>
+      <button class="btn btn-xl" style="width:100%;margin-top:8px;font-size:12px" onclick="downloadExcel()">
+        📥 Descargar Excel con Estatus
+      </button>
     </div>
   </div>
 </aside>
@@ -243,121 +215,120 @@ hr{border:none;border-top:1px solid #2e3250}
 </div>
 
 <script>
-let results=[];
-let xlsxBase64='';
-let xlsxFileName='';
-let pendingCount=0;
+let results = [];
+let xlsxBase64 = '';
+let xlsxFileName = '';
 
-function stab(id,btn){
-  document.querySelectorAll('.sb-tab').forEach(b=>b.classList.remove('on'));
+function stab(id, btn) {
+  document.querySelectorAll('.sb-tab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('tp-single').style.display=id==='single'?'flex':'none';
-  document.getElementById('tp-batch').style.display=id==='batch'?'flex':'none';
-  if(id==='single') document.getElementById('tp-single').style.flexDirection='column';
+  document.getElementById('tp-single').style.display = id === 'single' ? 'block' : 'none';
+  document.getElementById('tp-batch').style.display  = id === 'batch'  ? 'block' : 'none';
 }
-function rtab(id,btn){
-  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('on'));
+function rtab(id, btn) {
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('pane-all').className='pane'+(id==='all'?' on':'');
-  document.getElementById('pane-wsdl').className='pane'+(id==='wsdl'?' on':'');
+  document.getElementById('pane-all').className  = 'pane' + (id === 'all'  ? ' on' : '');
+  document.getElementById('pane-wsdl').className = 'pane' + (id === 'wsdl' ? ' on' : '');
 }
 
 // DRAG DROP
-const dz=document.getElementById('dz');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');handleFile(e.dataTransfer.files[0]);});
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
 
-async function handleFile(file){
-  if(!file)return;
-  document.getElementById('dzOk').textContent='⏳ Leyendo '+file.name+'...';
-  const fd=new FormData();fd.append('file',file);
-  try{
-    const r=await fetch('/api/parse-excel',{method:'POST',body:fd});
-    const d=await r.json();
-    if(d.error){document.getElementById('dzOk').textContent='❌ '+d.error;return;}
-    xlsxBase64=d.xlsxBase64||'';
-    xlsxFileName=d.fileName||'';
-    document.getElementById('bCsv').value=d.urls.map(u=>`${u.name},${u.url},${u.type}`).join('\n');
-    document.getElementById('dzOk').textContent=`✅ ${file.name} — ${d.count} URLs cargadas`;
-  }catch(e){document.getElementById('dzOk').textContent='❌ '+e.message;}
+async function handleFile(file) {
+  if (!file) return;
+  document.getElementById('dzOk').textContent = '⏳ Leyendo ' + file.name + '...';
+  const fd = new FormData(); fd.append('file', file);
+  try {
+    const r = await fetch('/api/parse-excel', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.error) { document.getElementById('dzOk').textContent = '❌ ' + d.error; return; }
+    xlsxBase64   = d.xlsxBase64 || '';
+    xlsxFileName = d.fileName   || file.name;
+    document.getElementById('bCsv').value = d.urls.map(u => `${u.name},${u.url},${u.type}`).join('\n');
+    document.getElementById('dzOk').textContent = `✅ ${file.name} — ${d.count} URLs cargadas`;
+  } catch(e) {
+    document.getElementById('dzOk').textContent = '❌ ' + e.message;
+  }
 }
 
-function creds(){return{user:document.getElementById('gUser').value.trim(),pass:document.getElementById('gPass').value.trim()};}
+function creds() { return { user: document.getElementById('gUser').value.trim(), pass: document.getElementById('gPass').value.trim() }; }
 
-async function testSingle(){
-  const url=document.getElementById('sUrl').value.trim();
-  const name=document.getElementById('sName').value.trim()||url;
-  const type=document.getElementById('sType').value;
-  if(!url){alert('Ingresa una URL');return;}
-  const{user,pass}=creds();
-  const card=mkCard({name,url,type});
-  const data=await doTest({url,username:user,password:pass,type});
-  data.name=name;
-  fillCard(card,data);
+async function testSingle() {
+  const url  = document.getElementById('sUrl').value.trim();
+  const name = document.getElementById('sName').value.trim() || url;
+  const type = document.getElementById('sType').value;
+  if (!url) { alert('Ingresa una URL'); return; }
+  const { user, pass } = creds();
+  const card = mkCard({ name, url, type });
+  const data = await doTest({ url, username: user, password: pass, type });
+  data.name = name;
+  fillCard(card, data);
   results.push(data);
-  if(data.ok&&data.wsdl_info)mkWsdlCard(data);
+  if (data.ok && data.wsdl_info) mkWsdlCard(data);
 }
 
-async function testBatch(){
-  const csv=document.getElementById('bCsv').value.trim();
-  if(!csv){alert('Carga un Excel o pega URLs en CSV');return;}
-  const{user,pass}=creds();
-  const lines=csv.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-  const urls=lines.map(line=>{
-    const p=line.split(',').map(x=>x.trim());
-    if(p[0].startsWith('http'))return{name:p[0],url:p[0],type:p[1]||'apirest'};
-    return{name:p[0],url:p[1],type:p[2]||'apirest'};
-  }).filter(u=>u.url&&u.url.startsWith('http'));
-  if(!urls.length){alert('No se detectaron URLs válidas');return;}
+async function testBatch() {
+  const csv = document.getElementById('bCsv').value.trim();
+  if (!csv) { alert('Carga un Excel o pega URLs en CSV'); return; }
+  const { user, pass } = creds();
+  const lines = csv.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  const urls = lines.map(line => {
+    const p = line.split(',').map(x => x.trim());
+    if (p[0].startsWith('http')) return { name: p[0], url: p[0], type: p[1] || 'apirest' };
+    return { name: p[0], url: p[1], type: p[2] || 'apirest' };
+  }).filter(u => u.url && u.url.startsWith('http'));
+  if (!urls.length) { alert('No se detectaron URLs válidas'); return; }
 
-  document.getElementById('prog').style.display='block';
-  document.getElementById('progFill').style.width='0%';
+  document.getElementById('prog').style.display = 'block';
+  document.getElementById('progFill').style.width = '0%';
 
-  const cards={};
-  urls.forEach(u=>{cards[u.url]=mkCard(u);});
+  const cards = {};
+  urls.forEach(u => { cards[u.url] = mkCard(u); });
 
-  let done=0;
-  for(let i=0;i<urls.length;i+=5){
-    const batch=urls.slice(i,i+5);
-    await Promise.all(batch.map(async item=>{
-      const data=await doTest({url:item.url,username:user,password:pass,type:item.type});
-      data.name=item.name;
-      fillCard(cards[item.url],data);
+  let done = 0;
+  for (let i = 0; i < urls.length; i += 5) {
+    const batch = urls.slice(i, i + 5);
+    await Promise.all(batch.map(async item => {
+      const data = await doTest({ url: item.url, username: user, password: pass, type: item.type });
+      data.name = item.name;
+      fillCard(cards[item.url], data);
       results.push(data);
-      if(data.ok&&data.wsdl_info)mkWsdlCard(data);
+      if (data.ok && data.wsdl_info) mkWsdlCard(data);
       done++;
-      document.getElementById('progFill').style.width=Math.round(done/urls.length*100)+'%';
-      document.getElementById('progLbl').textContent=`Procesando ${done}/${urls.length}...`;
+      document.getElementById('progFill').style.width = Math.round(done / urls.length * 100) + '%';
+      document.getElementById('progLbl').textContent = `Procesando ${done}/${urls.length}...`;
     }));
   }
-  document.getElementById('progLbl').textContent=`✓ Completado — ${urls.length} URLs`;
-  setTimeout(()=>{document.getElementById('prog').style.display='none';},3000);
+  document.getElementById('progLbl').textContent = `✓ Completado — ${urls.length} URLs`;
+  setTimeout(() => { document.getElementById('prog').style.display = 'none'; }, 3000);
 }
 
-async function doTest(payload){
-  try{
-    const r=await fetch('/api/test-url',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+async function doTest(payload) {
+  try {
+    const r = await fetch('/api/test-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     return await r.json();
-  }catch(e){return{ok:false,reachable:false,error:e.message,error_type:'ERROR INTERNO'};}
+  } catch(e) {
+    return { ok: false, reachable: false, error: e.message, error_type: 'ERROR INTERNO' };
+  }
 }
 
-function mkCard(item){
-  // Quitar empty state
-  const ea=document.getElementById('emptyAll');
-  if(ea)ea.style.display='none';
-  
-  const pane=document.getElementById('pane-all');
-  const d=document.createElement('div');
-  d.className='rc pend';
-  const tl=item.type==='soamanager'?'SOA':'REST';
-  const tc=item.type==='soamanager'?'soa':'rest';
-  d.innerHTML=`
+function mkCard(item) {
+  document.getElementById('emptyAll').style.display = 'none';
+  const pane = document.getElementById('pane-all');
+  const d = document.createElement('div');
+  d.className = 'rc pend';
+  const tl = item.type === 'soamanager' ? 'SOA' : 'REST';
+  const tc = item.type === 'soamanager' ? 'soa' : 'rest';
+  d.innerHTML = `
 <div class="rc-head" onclick="this.parentElement.classList.toggle('open')">
   <span class="dot pend"></span>
   <div class="rc-names">
-    <div class="rc-name">${esc(item.name||item.url)}</div>
-    <div class="rc-url">${esc(item.url||'')}</div>
+    <div class="rc-name">${esc(item.name || item.url)}</div>
+    <div class="rc-url">${esc(item.url || '')}</div>
   </div>
   <div class="rc-meta">
     <span class="bt ${tc}">${tl}</span>
@@ -367,161 +338,155 @@ function mkCard(item){
   </div>
 </div>
 <div class="rc-body"></div>`;
-  pane.insertBefore(d,pane.firstChild);
+  pane.insertBefore(d, pane.firstChild);
   updateCounters();
   return d;
 }
 
-function fillCard(card,data){
-  const ok=data.ok;
-  card.className='rc '+(ok?'ok':'fail');
-  card.querySelector('.dot').className='dot '+(ok?'ok':'fail');
-  const bs=card.querySelector('.bs');
-  bs.className='bs '+(ok?'ok':'fail');
-  if(!data.reachable)bs.textContent=data.error_type||'Sin acceso';
-  else bs.textContent=`HTTP ${data.status} — ${data.auth_status||''}`;
-  card.querySelector('.elapsed').textContent=data.elapsed_ms?data.elapsed_ms+'ms':'—';
-  card.querySelector('.rc-body').innerHTML=buildBody(data);
+function fillCard(card, data) {
+  const ok = data.ok;
+  card.className = 'rc ' + (ok ? 'ok' : 'fail');
+  card.querySelector('.dot').className = 'dot ' + (ok ? 'ok' : 'fail');
+  const bs = card.querySelector('.bs');
+  bs.className = 'bs ' + (ok ? 'ok' : 'fail');
+  bs.textContent = !data.reachable ? (data.error_type || 'Sin acceso') : `HTTP ${data.status} — ${data.auth_status || ''}`;
+  card.querySelector('.elapsed').textContent = data.elapsed_ms ? data.elapsed_ms + 'ms' : '—';
+  card.querySelector('.rc-body').innerHTML = buildBody(data);
   updateCounters();
 }
 
-function buildBody(d){
-  let h='';
-  if(d.wsdl_info&&d.ok)h+=buildWg(d.wsdl_info);
-  const rows=[
-    ['URL',d.url||'—'],['HTTP',d.status?`${d.status} ${d.statusText||''}`:'—'],
-    ['Tiempo',d.elapsed_ms?d.elapsed_ms+'ms':'—'],['Accesible',d.reachable?'✓ Sí':'✗ No'],
-    ['Auth',d.auth_status||'—'],['Content-Type',d.content_type||'—'],
+function buildBody(d) {
+  let h = '';
+  if (d.wsdl_info && d.ok) h += buildWg(d.wsdl_info);
+  const rows = [
+    ['URL', d.url || '—'], ['HTTP', d.status ? `${d.status} ${d.statusText || ''}` : '—'],
+    ['Tiempo', d.elapsed_ms ? d.elapsed_ms + 'ms' : '—'], ['Accesible', d.reachable ? '✓ Sí' : '✗ No'],
+    ['Auth', d.auth_status || '—'], ['Content-Type', d.content_type || '—'],
   ];
-  if(d.type==='soamanager')rows.push(['WSDL válido',d.has_wsdl?'✓ Sí':'✗ No']);
-  if(d.error_type)rows.push(['Tipo error',d.error_type]);
-  if(d.error)rows.push(['Detalle',d.error]);
-  h+='<div class="dg">';
-  rows.forEach(([k,v])=>{
-    const vc=String(v).startsWith('✓')?'g':String(v).startsWith('✗')?'r':'';
-    h+=`<div class="di"><div class="k">${k}</div><div class="v ${vc}">${esc(String(v))}</div></div>`;
+  if (d.type === 'soamanager') rows.push(['WSDL válido', d.has_wsdl ? '✓ Sí' : '✗ No']);
+  if (d.error_type) rows.push(['Tipo error', d.error_type]);
+  if (d.error) rows.push(['Detalle', d.error]);
+  h += '<div class="dg">';
+  rows.forEach(([k, v]) => {
+    const vc = String(v).startsWith('✓') ? 'g' : String(v).startsWith('✗') ? 'r' : '';
+    h += `<div class="di"><div class="k">${k}</div><div class="v ${vc}">${esc(String(v))}</div></div>`;
   });
-  h+='</div>';
-  if(d.body_preview&&!d.wsdl_info)h+=`<div class="prev-lbl">Preview</div><div class="prev">${esc(d.body_preview)}</div>`;
+  h += '</div>';
+  if (d.body_preview && !d.wsdl_info) h += `<div class="prev-lbl">Preview</div><div class="prev">${esc(d.body_preview)}</div>`;
   return h;
 }
 
-function buildWg(w){
-  let ph='',pp='',ih='',ip='';
-  try{const u=new URL(w.public_url||'');ph=u.hostname;pp=u.pathname;}catch(e){}
-  try{const u=new URL(w.internal_url||'');ih=u.hostname;ip=u.pathname;}catch(e){}
-  const hasMap=ph&&ih&&ph!==ih;
-  let h=`<div class="wg"><div class="wg-title">🔷 Mapeo WSDL</div><div class="wg-flow">`;
-  h+=`<div class="wg-node pub"><div class="nl">🌐 URL Pública</div><div class="nh">${esc(ph||'—')}</div><div class="np">${esc(pp)}</div></div>`;
-  if(hasMap){
-    h+=`<div class="wg-arr"><span class="a">→</span><span class="al">Proxy</span></div>`;
-    h+=`<div class="wg-node int"><div class="nl">🏭 SAP Interno</div><div class="nh">${esc(ih)}</div><div class="np">${esc(ip)}</div></div>`;
+function buildWg(w) {
+  let ph = '', pp = '', ih = '', ip = '';
+  try { const u = new URL(w.public_url || ''); ph = u.hostname; pp = u.pathname; } catch(e) {}
+  try { const u = new URL(w.internal_url || ''); ih = u.hostname; ip = u.pathname; } catch(e) {}
+  const hasMap = ph && ih && ph !== ih;
+  let h = `<div class="wg"><div class="wg-title">🔷 Mapeo WSDL</div><div class="wg-flow">`;
+  h += `<div class="wg-node pub"><div class="nl">🌐 URL Pública</div><div class="nh">${esc(ph || '—')}</div><div class="np">${esc(pp)}</div></div>`;
+  if (hasMap) {
+    h += `<div class="wg-arr"><span class="a">→</span><span class="al">Proxy</span></div>`;
+    h += `<div class="wg-node int"><div class="nl">🏭 SAP Interno</div><div class="nh">${esc(ih)}</div><div class="np">${esc(ip)}</div></div>`;
   }
-  h+=`</div>`;
-  if(w.service_name||w.port_name){
-    h+=`<div class="wg-meta">`;
-    if(w.service_name)h+=`<div class="wg-mi"><span class="k">Servicio: </span><span class="v">${esc(w.service_name)}</span></div>`;
-    if(w.port_name)h+=`<div class="wg-mi"><span class="k">Port: </span><span class="v">${esc(w.port_name)}</span></div>`;
-    h+=`</div>`;
+  h += '</div>';
+  if (w.service_name || w.port_name) {
+    h += '<div class="wg-meta">';
+    if (w.service_name) h += `<div class="wg-mi"><span class="k">Servicio: </span><span class="v">${esc(w.service_name)}</span></div>`;
+    if (w.port_name) h += `<div class="wg-mi"><span class="k">Port: </span><span class="v">${esc(w.port_name)}</span></div>`;
+    h += '</div>';
   }
-  if(w.operations&&w.operations.length){
-    h+=`<div class="wg-ops"><div class="wg-ops-lbl">Operaciones (${w.operations.length})</div><div class="wg-ops-list">`;
-    w.operations.forEach(op=>{h+=`<span class="wg-op">${esc(op)}</span>`;});
-    h+=`</div></div>`;
+  if (w.operations && w.operations.length) {
+    h += `<div class="wg-ops"><div class="wg-ops-lbl">Operaciones (${w.operations.length})</div><div class="wg-ops-list">`;
+    w.operations.forEach(op => { h += `<span class="wg-op">${esc(op)}</span>`; });
+    h += '</div></div>';
   }
-  h+=`</div>`;
+  h += '</div>';
   return h;
 }
 
-function mkWsdlCard(data){
-  document.getElementById('emptyWsdl').style.display='none';
-  const pane=document.getElementById('pane-wsdl');
-  const w=data.wsdl_info;
-  const d=document.createElement('div');
-  d.className='wc';
-  let opsTable='';
-  if(w.operations&&w.operations.length){
-    opsTable=`<table class="ptable"><thead><tr><th>Operación</th><th>Dir</th><th>Mensaje</th></tr></thead><tbody>`;
-    w.operations.forEach(op=>{
-      const im=w.op_messages?.[op]?.input||op+'Request';
-      const om=w.op_messages?.[op]?.output||op+'Response';
-      opsTable+=`<tr><td rowspan="2"><strong>${esc(op)}</strong></td><td><span class="tag-in">IN</span></td><td>${esc(im)}</td></tr>`;
-      opsTable+=`<tr><td><span class="tag-out">OUT</span></td><td>${esc(om)}</td></tr>`;
+function mkWsdlCard(data) {
+  document.getElementById('emptyWsdl').style.display = 'none';
+  const pane = document.getElementById('pane-wsdl');
+  const w = data.wsdl_info;
+  const d = document.createElement('div');
+  d.className = 'wc';
+  let opsTable = '';
+  if (w.operations && w.operations.length) {
+    opsTable = `<table class="ptable"><thead><tr><th>Operación</th><th>Dir</th><th>Mensaje</th></tr></thead><tbody>`;
+    w.operations.forEach(op => {
+      const im = w.op_messages?.[op]?.input  || op + 'Request';
+      const om = w.op_messages?.[op]?.output || op + 'Response';
+      opsTable += `<tr><td rowspan="2"><strong>${esc(op)}</strong></td><td><span class="tag-in">IN</span></td><td>${esc(im)}</td></tr>`;
+      opsTable += `<tr><td><span class="tag-out">OUT</span></td><td>${esc(om)}</td></tr>`;
     });
-    opsTable+=`</tbody></table>`;
+    opsTable += '</tbody></table>';
   }
-  d.innerHTML=`
+  d.innerHTML = `
 <div class="wc-head" onclick="this.parentElement.classList.toggle('open')">
-  <div class="wc-name">${esc(data.name||data.url)}</div>
-  <div class="wc-badges">
-    <span class="bs ok">HTTP ${data.status}</span>
-    <span class="elapsed">${data.elapsed_ms}ms</span>
-    <span class="chev">▼</span>
-  </div>
+  <div class="wc-name">${esc(data.name || data.url)}</div>
+  <div class="wc-badges"><span class="bs ok">HTTP ${data.status}</span><span class="elapsed">${data.elapsed_ms}ms</span><span class="chev">▼</span></div>
 </div>
 <div class="wc-body">
   ${buildWg(w)}
-  ${opsTable?`<div class="prev-lbl" style="margin-top:8px">Operaciones del servicio</div>${opsTable}`:''}
-  ${w.internal_url?`<div class="prev-lbl" style="margin-top:8px">Endpoint interno SAP</div><div class="prev">${esc(w.internal_url)}</div>`:''}
+  ${opsTable ? `<div class="prev-lbl" style="margin-top:8px">Operaciones</div>${opsTable}` : ''}
+  ${w.internal_url ? `<div class="prev-lbl" style="margin-top:8px">Endpoint interno SAP</div><div class="prev">${esc(w.internal_url)}</div>` : ''}
 </div>`;
   pane.appendChild(d);
 }
 
-function updateCounters(){
-  let ok=0,fail=0,pend=0;
-  document.querySelectorAll('#pane-all .rc').forEach(c=>{
-    if(c.classList.contains('ok'))ok++;
-    else if(c.classList.contains('fail'))fail++;
+function updateCounters() {
+  let ok = 0, fail = 0, pend = 0;
+  document.querySelectorAll('#pane-all .rc').forEach(c => {
+    if (c.classList.contains('ok')) ok++;
+    else if (c.classList.contains('fail')) fail++;
     else pend++;
   });
-  document.getElementById('cOk').textContent=ok;
-  document.getElementById('cFail').textContent=fail;
-  document.getElementById('cPend').textContent=pend;
+  document.getElementById('cOk').textContent   = ok;
+  document.getElementById('cFail').textContent  = fail;
+  document.getElementById('cPend').textContent  = pend;
 }
 
-function exportCSV(){
-  if(!results.length)return alert('Sin resultados');
-  const h=['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl','wsdl_service','wsdl_ops','wsdl_public','wsdl_internal'];
-  const rows=results.map(r=>h.map(k=>{
-    if(k==='wsdl_service')return JSON.stringify(r.wsdl_info?.service_name||'');
-    if(k==='wsdl_ops')return JSON.stringify((r.wsdl_info?.operations||[]).join('|'));
-    if(k==='wsdl_public')return JSON.stringify(r.wsdl_info?.public_url||'');
-    if(k==='wsdl_internal')return JSON.stringify(r.wsdl_info?.internal_url||'');
-    return JSON.stringify(r[k]??'');
-  }).join(','));
-  dl('sap-test.csv',[h.join(','),...rows].join('\n'),'text/csv');
+// ── DOWNLOAD EXCEL CON ESTATUS ────────────────────────────────
+async function downloadExcel() {
+  if (!results.length) { alert('Sin resultados aún — ejecuta primero el batch'); return; }
+  if (!xlsxBase64)     { alert('Carga primero el Excel usando el botón de subir archivo'); return; }
+  try {
+    const r = await fetch('/api/export-excel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xlsxBase64, fileName: xlsxFileName, results })
+    });
+    if (!r.ok) { const e = await r.json(); alert('Error: ' + e.error); return; }
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = xlsxFileName.replace('.xlsx', '') + '_estatus.xlsx';
+    a.click();
+  } catch(e) { alert('Error descargando: ' + e.message); }
 }
-function exportJSON(){
-  if(!results.length)return alert('Sin resultados');
-  dl('sap-test.json',JSON.stringify(results,null,2),'application/json');
+
+function exportCSV() {
+  if (!results.length) return alert('Sin resultados');
+  const h = ['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl'];
+  const rows = results.map(r => h.map(k => JSON.stringify(r[k] ?? '')).join(','));
+  dl('sap-test.csv', [h.join(','), ...rows].join('\n'), 'text/csv');
 }
-function clearAll(){
-  results=[];
-  const pa=document.getElementById('pane-all');
-  pa.innerHTML='<div class="empty" id="emptyAll"><div class="empty-icon">🔌</div><p>Ingresa una URL o carga un Excel/CSV para probar conectividad</p></div>';
-  const pw=document.getElementById('pane-wsdl');
-  pw.innerHTML='<div class="empty" id="emptyWsdl"><div class="empty-icon">🔷</div><p>Aquí aparecen los servicios SOA Manager con WSDL válido</p></div>';
+function exportJSON() {
+  if (!results.length) return alert('Sin resultados');
+  dl('sap-test.json', JSON.stringify(results, null, 2), 'application/json');
+}
+function clearAll() {
+  results = []; xlsxBase64 = ''; xlsxFileName = '';
+  document.getElementById('pane-all').innerHTML  = '<div class="empty" id="emptyAll"><div class="empty-icon">🔌</div><p>Ingresa una URL o carga un Excel/CSV para probar conectividad</p></div>';
+  document.getElementById('pane-wsdl').innerHTML = '<div class="empty" id="emptyWsdl"><div class="empty-icon">🔷</div><p>Aquí aparecen los servicios SOA Manager con WSDL válido</p></div>';
   updateCounters();
 }
-function loadSample(){
-  document.getElementById('bCsv').value=`zb2b_ws_cliente,https://intercekpfp.kupfer.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zb2b_ws_cliente/300/zb2b_ws_cliente?sap-client=300,soamanager\nAPI_REST,https://intercekpfp.kupfer.cl/sap/bc/rest/pedidos,apirest`;
+function loadSample() {
+  document.getElementById('bCsv').value = `zb2b_ws_cliente,https://intercekpfp.kupfer.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zb2b_ws_cliente/300/zb2b_ws_cliente/zb2b_ws_cliente?sap-client=300,soamanager\nAPI_REST,https://intercekpfp.kupfer.cl/sap/bc/rest/pedidos,apirest`;
 }
-function downloadExcel(){
-  if(!results.length)return alert('Sin resultados aún');
-  if(!xlsxBase64)return alert('Carga primero el Excel con el botón de subir archivo');
-  fetch('/api/export-excel',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({xlsxBase64,fileName:xlsxFileName,results})
-  }).then(r=>r.blob()).then(blob=>{
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=xlsxFileName.replace('.xlsx','')+'_estatus.xlsx';
-    a.click();
-  }).catch(e=>alert('Error: '+e.message));
+function dl(name, content, mime) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type: mime })); a.download = name; a.click();
 }
-function dl(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;a.click();}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
