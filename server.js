@@ -4,9 +4,9 @@ const https = require("https");
 const path = require("path");
 const multer = require("multer");
 const XLSX = require("xlsx");
+const ExcelJS = require("exceljs");
 const fs = require("fs");
 const os = require("os");
-const ExcelJS = require("exceljs");
 
 const app = express();
 app.use(express.json({ limit: "20mb" }));
@@ -27,7 +27,6 @@ async function testUrl({ url, username, password, type }) {
     if (username && password)
       headers["Authorization"] = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
     if (type === "soamanager") headers["Accept"] = "text/xml,application/xml";
-
     const response = await fetch(url, {
       method: "GET", headers,
       agent: url.startsWith("https") ? httpsAgent : undefined,
@@ -41,12 +40,10 @@ async function testUrl({ url, username, password, type }) {
     result.reachable = true;
     result.content_type = response.headers.get("content-type") || "";
     result.body_preview = bodyText.substring(0, 500);
-
     if (type === "soamanager") {
       result.has_wsdl = bodyText.includes("wsdl:definitions") || bodyText.includes("definitions xmlns");
       if (result.has_wsdl) result.wsdl_info = parseWsdl(bodyText, url);
     }
-
     if (response.status === 401) { result.auth_status = "FAIL - Credenciales inválidas"; result.ok = false; }
     else if (response.status === 403) { result.auth_status = "FAIL - Sin autorización"; result.ok = false; }
     else if (response.status >= 200 && response.status < 400) { result.auth_status = username ? "OK - Autenticado" : "OK - Sin auth"; result.ok = true; }
@@ -104,25 +101,38 @@ app.post("/api/parse-excel", upload.single("file"), (req, res) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
+    // Detectar header
     const firstRow = rows[0] || [];
     const hasHeader = firstRow.some(c =>
       ["nombre","name","url","tipo","type","estatus","status"].includes(String(c).toLowerCase().trim())
     );
+
+    // Detectar columnas
+    let urlColIdx = 1, nombreColIdx = 0;
+    if (hasHeader) {
+      firstRow.forEach((c, i) => {
+        const v = String(c).toLowerCase().trim();
+        if (v === "url") urlColIdx = i;
+        if (v === "nombre" || v === "name") nombreColIdx = i;
+      });
+    }
+
     const dataRows = hasHeader ? rows.slice(1) : rows;
     const urls = [];
 
-    for (const row of dataRows) {
+    for (let i = 0; i < dataRows.length; i++) {
+      const row = dataRows[i];
       if (!row || row.length === 0) continue;
-      const cells = row.map(c => String(c).trim());
-      let name, url, type;
-      if (cells[0] && cells[0].startsWith("http")) {
-        url = cells[0]; name = cells[0]; type = cells[1] || "apirest";
-      } else if (cells.length >= 2) {
-        name = cells[0]; url = cells[1]; type = cells[2] || "apirest";
-      }
-      if (url && url.startsWith("http")) {
-        urls.push({ name: name || url, url, type: type.toLowerCase().includes("soa") ? "soamanager" : "apirest" });
-      }
+      const urlVal    = String(row[urlColIdx] || "").trim();
+      const nombreVal = String(row[nombreColIdx] || "").trim();
+      const tipoVal   = String(row[2] || "").trim();
+      if (!urlVal || !urlVal.startsWith("http")) continue;
+      urls.push({
+        rowIndex: i + (hasHeader ? 2 : 1), // 1-based Excel row number
+        name: nombreVal || urlVal,
+        url: urlVal,
+        type: tipoVal.toLowerCase().includes("soa") ? "soamanager" : "apirest"
+      });
     }
     res.json({ count: urls.length, urls, fileName: req.file.originalname });
   } catch (e) {
@@ -130,7 +140,7 @@ app.post("/api/parse-excel", upload.single("file"), (req, res) => {
   }
 });
 
-// ── Export Excel con colores via ExcelJS ─────────────────────
+// ── Export Excel con colores ──────────────────────────────────
 app.post("/api/export-excel", async (req, res) => {
   try {
     const { results, xlsxBase64 } = req.body;
@@ -144,32 +154,49 @@ app.post("/api/export-excel", async (req, res) => {
     if (!tempExcelPath || !fs.existsSync(tempExcelPath))
       return res.status(400).json({ error: "Sube el Excel nuevamente e intenta otra vez." });
 
-    // Mapas por URL y nombre
-    const byUrl  = {}, byName = {};
+    // Leer Excel con ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(tempExcelPath);
+    const ws = workbook.worksheets[0];
+
+    // Detectar fila de header y columnas (puede haber filas vacías al inicio)
+    let headerRowNum = 1, urlColNum = 3, nombreColNum = 2, estatusColNum = 5;
+    ws.eachRow((row, rowNumber) => {
+      if (headerRowNum > 1) return; // ya encontrado
+      let isHeader = false;
+      row.eachCell((cell) => {
+        const v = String(cell.value || "").toLowerCase().trim();
+        if (v === "url" || v === "nombre" || v === "name") isHeader = true;
+      });
+      if (isHeader) {
+        headerRowNum = rowNumber;
+        row.eachCell((cell, colNumber) => {
+          const v = String(cell.value || "").toLowerCase().trim();
+          if (v === "url") urlColNum = colNumber;
+          if (v === "nombre" || v === "name") nombreColNum = colNumber;
+          if (v.includes("estatus") || v === "status") estatusColNum = colNumber;
+        });
+      }
+    });
+    console.log(`Header en fila ${headerRowNum}, url=col${urlColNum}, nombre=col${nombreColNum}, estatus=col${estatusColNum}`);
+
+    // Construir mapa URL -> resultado
+    const byUrl  = {};
+    const byName = {};
     for (const r of results) {
       if (r.url)  byUrl[r.url.trim()]   = r;
       if (r.name) byName[r.name.trim()] = r;
     }
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(tempExcelPath);
-    const ws = workbook.worksheets[0];
-
-    // Detectar columnas por header (fila 1)
-    let urlCol = 2, nombreCol = 1, estatusCol = 4;
-    ws.getRow(1).eachCell((cell, colNumber) => {
-      const v = String(cell.value || "").toLowerCase().trim();
-      if (v === "url")                          urlCol      = colNumber;
-      if (v === "nombre" || v === "name")       nombreCol   = colNumber;
-      if (v.includes("estatus") || v === "status") estatusCol = colNumber;
-    });
-
-    // Procesar filas de datos
+    let updated = 0;
     ws.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // skip header
-      const urlVal    = String(row.getCell(urlCol).value    || "").trim();
-      const nombreVal = String(row.getCell(nombreCol).value || "").trim();
-      const result    = byUrl[urlVal] || byName[nombreVal];
+      if (rowNumber <= headerRowNum) return; // skip header y filas vacías
+      const urlVal    = String(row.getCell(urlColNum).value    || "").trim();
+      const nombreVal = String(row.getCell(nombreColNum).value || "").trim();
+      if (!urlVal && !nombreVal) return;
+
+      // Match por URL completa, luego por nombre
+      const result = byUrl[urlVal] || byName[nombreVal];
       if (!result) return;
 
       const ok = result.ok;
@@ -182,15 +209,15 @@ app.post("/api/export-excel", async (req, res) => {
         statusText = `ERROR - HTTP ${result.status || "N/A"}`;
       }
 
-      const cell = row.getCell(estatusCol);
+      const cell = row.getCell(estatusColNum);
       cell.value = statusText;
       cell.fill  = { type: "pattern", pattern: "solid", fgColor: { argb: ok ? "FFC6EFCE" : "FFFFC7CE" } };
-      cell.font  = { color: { argb: ok ? "FF276221" : "FF9C0006" }, bold: true };
+      cell.font  = { color: { argb: ok ? "FF276221" : "FF9C0006" }, bold: true, size: 11 };
       cell.alignment = { horizontal: "center", vertical: "middle" };
+      updated++;
     });
 
-    // Ancho columna estatus
-    ws.getColumn(estatusCol).width = 25;
+    console.log(`Export: ${updated} filas actualizadas de ${results.length} resultados`);
 
     const outName = tempExcelName.replace(/\.xlsx$/i, "") + "_estatus.xlsx";
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
