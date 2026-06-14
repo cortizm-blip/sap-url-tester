@@ -164,6 +164,7 @@ hr{border:none;border-top:1px solid #2e3250}
           <button class="btn btn-p" style="flex:1" onclick="testBatch()">▶ Probar Todo</button>
           <button class="btn btn-g" style="padding:8px 10px;font-size:11px" onclick="loadSample()">Ejemplo</button>
         </div>
+        <button class="btn" id="btnRetry" style="width:100%;background:#92400e;color:#fef3c7;display:none;font-size:12px" onclick="retryPending()">🔁 Reintentar Pendientes</button>
         <div class="prog" id="prog">
           <div class="prog-lbl" id="progLbl">Procesando...</div>
           <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
@@ -308,6 +309,12 @@ async function testBatch() {
   }
   document.getElementById('progLbl').textContent = `✓ Completado — ${urls.length} URLs`;
   setTimeout(() => { document.getElementById('prog').style.display = 'none'; }, 3000);
+  // Mostrar botón retry si hay pendientes
+  const pendingCards = document.querySelectorAll('#pane-all .rc.pend');
+  if (pendingCards.length > 0) {
+    document.getElementById('btnRetry').style.display = 'block';
+    document.getElementById('btnRetry').textContent = `🔁 Reintentar ${pendingCards.length} Pendientes`;
+  }
 }
 
 async function doTest(payload) {
@@ -476,7 +483,47 @@ async function downloadExcel() {
   } catch(e) { alert('Error descargando: ' + e.message); }
 }
 
-function exportCSV() {
+async function retryPending() {
+  const pendingCards = Array.from(document.querySelectorAll('#pane-all .rc.pend'));
+  if (!pendingCards.length) { document.getElementById('btnRetry').style.display = 'none'; return; }
+
+  const { user, pass } = creds();
+  document.getElementById('btnRetry').textContent = `⏳ Reintentando ${pendingCards.length}...`;
+  document.getElementById('btnRetry').disabled = true;
+
+  let done = 0;
+  for (let i = 0; i < pendingCards.length; i += 3) {
+    const batch = pendingCards.slice(i, i + 3);
+    await Promise.all(batch.map(async card => {
+      const urlEl  = card.querySelector('.rc-url');
+      const nameEl = card.querySelector('.rc-name');
+      const typeEl = card.querySelector('.bt');
+      const url    = urlEl  ? urlEl.textContent.trim()  : '';
+      const name   = nameEl ? nameEl.textContent.trim() : url;
+      const type   = typeEl && typeEl.classList.contains('soa') ? 'soamanager' : 'apirest';
+      if (!url) return;
+
+      const data = await doTest({ url, username: user, password: pass, type });
+      data.name = name;
+      fillCard(card, data);
+      // Actualizar results array
+      const idx = results.findIndex(r => r.url === url);
+      if (idx >= 0) results[idx] = data; else results.push(data);
+      if (data.ok && data.wsdl_info) mkWsdlCard(data);
+      done++;
+    }));
+  }
+
+  document.getElementById('btnRetry').disabled = false;
+  const stillPending = document.querySelectorAll('#pane-all .rc.pend').length;
+  if (stillPending > 0) {
+    document.getElementById('btnRetry').textContent = `🔁 Reintentar ${stillPending} Pendientes`;
+  } else {
+    document.getElementById('btnRetry').style.display = 'none';
+  }
+}
+
+
   if (!results.length) return alert('Sin resultados');
   const h = ['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl'];
   const rows = results.map(r => h.map(k => JSON.stringify(r[k] ?? '')).join(','));
