@@ -29,7 +29,7 @@ async function testUrl({ url, username, password, type }) {
     const response = await fetch(url, {
       method: "GET", headers,
       agent: url.startsWith("https") ? httpsAgent : undefined,
-      timeout: 15000,
+      timeout: 8000,
     });
 
     const elapsed = Date.now() - startTime;
