@@ -530,7 +530,7 @@ async function retryPending() {
   }
 }
 
-
+function exportCSV() {
   if (!results.length) return alert('Sin resultados');
   const h = ['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl'];
   const rows = results.map(r => h.map(k => JSON.stringify(r[k] ?? '')).join(','));
