@@ -312,10 +312,19 @@ async function testBatch() {
 
 async function doTest(payload) {
   try {
-    const r = await fetch('/api/test-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 14000);
+    const r = await fetch('/api/test-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
     return await r.json();
   } catch(e) {
-    return { ok: false, reachable: false, error: e.message, error_type: 'ERROR INTERNO' };
+    const isTimeout = e.name === 'AbortError' || e.message.includes('abort');
+    return { ok: false, reachable: false, error: e.message, error_type: isTimeout ? 'TIMEOUT' : 'ERROR INTERNO' };
   }
 }
 
