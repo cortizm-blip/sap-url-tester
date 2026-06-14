@@ -6,7 +6,7 @@ const multer = require("multer");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const os = require("os");
-const { execFile } = require("child_process");
+const ExcelJS = require("exceljs");
 
 const app = express();
 app.use(express.json({ limit: "20mb" }));
@@ -130,46 +130,76 @@ app.post("/api/parse-excel", upload.single("file"), (req, res) => {
   }
 });
 
-// ── Export Excel con colores via Python/openpyxl ──────────────
-app.post("/api/export-excel", (req, res) => {
+// ── Export Excel con colores via ExcelJS ─────────────────────
+app.post("/api/export-excel", async (req, res) => {
   try {
     const { results, xlsxBase64 } = req.body;
     if (!results || !results.length) return res.status(400).json({ error: "Sin resultados" });
 
-    // Restaurar Excel desde base64 del browser si el temp fue borrado
+    // Restaurar Excel desde base64 si el temp fue borrado
     if (xlsxBase64 && (!tempExcelPath || !fs.existsSync(tempExcelPath))) {
       tempExcelPath = path.join(os.tmpdir(), "sap_tester_upload.xlsx");
       fs.writeFileSync(tempExcelPath, Buffer.from(xlsxBase64, "base64"));
     }
-
     if (!tempExcelPath || !fs.existsSync(tempExcelPath))
       return res.status(400).json({ error: "Sube el Excel nuevamente e intenta otra vez." });
 
-    const outPath = path.join(os.tmpdir(), "sap_tester_output.xlsx");
-    const resultsJson = JSON.stringify(results);
-    const scriptPath = path.join(__dirname, "color_excel.py");
+    // Mapas por URL y nombre
+    const byUrl  = {}, byName = {};
+    for (const r of results) {
+      if (r.url)  byUrl[r.url.trim()]   = r;
+      if (r.name) byName[r.name.trim()] = r;
+    }
 
-    execFile("python3", [scriptPath, tempExcelPath, outPath, resultsJson], { timeout: 30000 }, (err, stdout, stderr) => {
-      if (err) {
-        console.error("Python error:", stderr);
-        return res.status(500).json({ error: "Error coloreando Excel: " + (stderr || err.message) });
-      }
-      try {
-        const pyResult = JSON.parse(stdout.trim());
-        if (!pyResult.ok) return res.status(500).json({ error: "Error en script Python" });
-      } catch(e) {}
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(tempExcelPath);
+    const ws = workbook.worksheets[0];
 
-      const outBuffer = fs.readFileSync(outPath);
-      const outName = tempExcelName.replace(/\.xlsx$/i, "") + "_estatus.xlsx";
-      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      res.setHeader("Content-Disposition", `attachment; filename="${outName}"`);
-      res.send(outBuffer);
-
-      // Cleanup
-      try { fs.unlinkSync(outPath); } catch(e) {}
+    // Detectar columnas por header (fila 1)
+    let urlCol = 2, nombreCol = 1, estatusCol = 4;
+    ws.getRow(1).eachCell((cell, colNumber) => {
+      const v = String(cell.value || "").toLowerCase().trim();
+      if (v === "url")                          urlCol      = colNumber;
+      if (v === "nombre" || v === "name")       nombreCol   = colNumber;
+      if (v.includes("estatus") || v === "status") estatusCol = colNumber;
     });
+
+    // Procesar filas de datos
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // skip header
+      const urlVal    = String(row.getCell(urlCol).value    || "").trim();
+      const nombreVal = String(row.getCell(nombreCol).value || "").trim();
+      const result    = byUrl[urlVal] || byName[nombreVal];
+      if (!result) return;
+
+      const ok = result.ok;
+      let statusText;
+      if (ok) {
+        statusText = `OK - HTTP ${result.status}`;
+      } else if (!result.reachable) {
+        statusText = result.error_type || "ERROR - Sin conexión";
+      } else {
+        statusText = `ERROR - HTTP ${result.status || "N/A"}`;
+      }
+
+      const cell = row.getCell(estatusCol);
+      cell.value = statusText;
+      cell.fill  = { type: "pattern", pattern: "solid", fgColor: { argb: ok ? "FFC6EFCE" : "FFFFC7CE" } };
+      cell.font  = { color: { argb: ok ? "FF276221" : "FF9C0006" }, bold: true };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    // Ancho columna estatus
+    ws.getColumn(estatusCol).width = 25;
+
+    const outName = tempExcelName.replace(/\.xlsx$/i, "") + "_estatus.xlsx";
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename="${outName}"`);
+    await workbook.xlsx.write(res);
+    res.end();
   } catch (e) {
-    res.status(500).json({ error: "Error: " + e.message });
+    console.error("Export error:", e);
+    res.status(500).json({ error: "Error generando Excel: " + e.message });
   }
 });
 
