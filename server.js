@@ -27,15 +27,21 @@ async function testUrl({ url, username, password, type }) {
     if (username && password)
       headers["Authorization"] = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
     if (type === "soamanager") headers["Accept"] = "text/xml,application/xml";
-    // Para API REST usar HEAD (solo conectividad), para SOA Manager usar GET (necesita el WSDL)
-    const method = type === "soamanager" ? "GET" : "HEAD";
+    // SOA Manager: GET para obtener WSDL
+    // API REST: POST con body vacío (SAP ICM ignora GET/HEAD en servicios REST)
+    const method = type === "soamanager" ? "GET" : "POST";
+    if (type === "apirest") {
+      headers["Content-Type"] = "application/json";
+    }
     const response = await fetch(url, {
-      method, headers,
+      method,
+      headers,
+      body: type === "apirest" ? "{}" : undefined,
       agent: url.startsWith("https") ? httpsAgent : undefined,
       timeout: 10000,
     });
     const elapsed = Date.now() - startTime;
-    const bodyText = method === "GET" ? await response.text() : "";
+    const bodyText = await response.text();
     result.status = response.status;
     result.statusText = response.statusText;
     result.elapsed_ms = elapsed;
