@@ -246,8 +246,11 @@ async function handleFile(file) {
     const r = await fetch('/api/parse-excel', { method: 'POST', body: fd });
     const d = await r.json();
     if (d.error) { document.getElementById('dzOk').textContent = '❌ ' + d.error; return; }
-    xlsxBase64   = d.xlsxBase64 || '';
-    xlsxFileName = d.fileName   || file.name;
+    xlsxFileName = d.fileName || file.name;
+    // Guardar base64 en browser para el export
+    const reader = new FileReader();
+    reader.onload = e => { xlsxBase64 = e.target.result.split(',')[1]; };
+    reader.readAsDataURL(file);
     document.getElementById('bCsv').value = d.urls.map(u => `${u.name},${u.url},${u.type}`).join('\n');
     document.getElementById('dzOk').textContent = `✅ ${file.name} — ${d.count} URLs cargadas`;
   } catch(e) {
@@ -453,7 +456,7 @@ async function downloadExcel() {
     const r = await fetch('/api/export-excel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ xlsxBase64, fileName: xlsxFileName, results })
+      body: JSON.stringify({ xlsxBase64: xlsxBase64 || '', fileName: xlsxFileName, results })
     });
     if (!r.ok) { const e = await r.json(); alert('Error: ' + e.error); return; }
     const blob = await r.blob();
