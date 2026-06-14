@@ -120,7 +120,7 @@ hr{border:none;border-top:1px solid #2e3250}
 <body>
 <div class="hdr">
   <div><div class="hdr-logo">⚡ SAP URL Tester</div><div class="hdr-sub">SOA Manager · API REST · Conectividad desde internet</div></div>
-  <div class="hdr-badge">v2.3</div>
+  <div class="hdr-badge">v2.4</div>
 </div>
 <div class="layout">
 <aside class="sb">
@@ -223,8 +223,8 @@ let xlsxFileName = '';
 function stab(id, btn) {
   document.querySelectorAll('.sb-tab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('tp-single').style.display = id === 'single' ? 'block' : 'none';
-  document.getElementById('tp-batch').style.display  = id === 'batch'  ? 'block' : 'none';
+  document.getElementById('tp-single').style.cssText = id === 'single' ? 'display:block' : 'display:none';
+  document.getElementById('tp-batch').style.cssText  = id === 'batch'  ? 'display:block' : 'display:none';
 }
 function rtab(id, btn) {
   document.querySelectorAll('.rtab').forEach(b => b.classList.remove('on'));
