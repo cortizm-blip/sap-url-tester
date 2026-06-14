@@ -6,87 +6,69 @@
 <title>SAP URL Tester</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f1117;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body{background:#0f1117;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
 
-/* HEADER */
-.hdr{background:#1a1d27;border-bottom:1px solid #2e3250;padding:12px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr{background:#1a1d27;border-bottom:1px solid #2e3250;padding:12px 20px;display:flex;align-items:center;gap:10px}
 .hdr-logo{font-size:17px;font-weight:700;color:#7b8cff}
 .hdr-sub{color:#64748b;font-size:11px}
 .hdr-badge{margin-left:auto;background:#4f6ef7;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700}
 
-/* LAYOUT */
-.layout{display:flex;flex:1;overflow:hidden}
+.layout{display:flex;height:calc(100vh - 53px)}
 
-/* SIDEBAR */
 .sb{width:320px;flex-shrink:0;background:#1a1d27;border-right:1px solid #2e3250;display:flex;flex-direction:column;overflow:hidden}
 .sb-tabs{display:flex;border-bottom:1px solid #2e3250;flex-shrink:0}
 .sb-tab{flex:1;padding:9px;background:none;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .sb-tab.on{color:#7b8cff;border-bottom-color:#4f6ef7}
 .sb-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 
-/* FORM */
-.fl{display:flex;flex-direction:column;gap:4px}
-lbl,label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
 input,select,textarea{width:100%;background:#222638;border:1px solid #2e3250;color:#e2e8f0;padding:7px 9px;border-radius:6px;font-size:13px;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#4f6ef7}
-textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;min-height:90px}
-.divider{border:none;border-top:1px solid #2e3250}
+textarea{resize:vertical;font-family:monospace;font-size:11px;min-height:90px}
+hr{border:none;border-top:1px solid #2e3250}
 
-/* BUTTONS */
-.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
 .btn-p{background:#4f6ef7;color:#fff}.btn-p:hover{background:#7b8cff}
 .btn-g{background:#222638;color:#e2e8f0;border:1px solid #2e3250}.btn-g:hover{border-color:#4f6ef7;color:#7b8cff}
-.btn-sm{padding:5px 10px;font-size:11px}
 .row{display:flex;gap:8px}
 
-/* DROP ZONE */
-.dz{border:2px dashed #2e3250;border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:#222638;transition:all .2s}
+.dz{border:2px dashed #2e3250;border-radius:8px;padding:16px;text-align:center;cursor:pointer;background:#222638;transition:all .2s}
 .dz:hover,.dz.over{border-color:#4f6ef7;background:rgba(79,110,247,.06)}
-.dz-icon{font-size:26px;margin-bottom:5px}
+.dz-icon{font-size:24px;margin-bottom:4px}
 .dz p{font-size:11px;color:#64748b}
-.dz-col{font-size:10px;color:#64748b;margin-top:3px}
-.dz-col strong{color:#e2e8f0}
-.dz-ok{color:#22c55e;font-size:12px;font-weight:600;margin-top:4px}
+.dz-col{font-size:10px;color:#64748b;margin-top:2px}
+.dz-ok{color:#22c55e;font-size:11px;font-weight:600;margin-top:4px}
 #fi{display:none}
 
-/* PROGRESS */
 .prog{display:none;margin-top:4px}
 .prog-lbl{font-size:11px;color:#64748b;margin-bottom:3px}
 .prog-bar{height:4px;background:#2e3250;border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:#4f6ef7;transition:width .3s;border-radius:2px}
 
-/* HINT */
-.hint{font-size:10px;color:#64748b;line-height:1.5}
-.hint code{background:#222638;padding:1px 4px;border-radius:3px;font-family:monospace}
-
-/* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .toolbar{background:#1a1d27;border-bottom:1px solid #2e3250;padding:9px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .stats{display:flex;gap:18px;margin-left:auto}
 .stat .v{font-size:20px;font-weight:700;line-height:1}
 .stat .l{font-size:9px;color:#64748b;text-transform:uppercase}
 .stat.ok .v{color:#22c55e}.stat.er .v{color:#ef4444}.stat.pe .v{color:#f59e0b}
 
-/* RESULT TABS */
 .rtabs{display:flex;background:#1a1d27;border-bottom:1px solid #2e3250;padding:0 18px;flex-shrink:0}
 .rtab{padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .rtab.on{color:#7b8cff;border-bottom-color:#4f6ef7}
 
-/* PANES */
-.pane{display:none;flex:1;overflow-y:auto;padding:14px 18px;flex-direction:column;gap:8px}
-.pane.on{display:flex}
+.pane{display:none;flex:1;overflow-y:auto;padding:14px 18px}
+.pane.on{display:block}
 
-/* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#64748b;gap:8px;padding:40px;text-align:center}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#64748b;gap:8px;text-align:center}
 .empty-icon{font-size:36px;opacity:.35}
 
-/* RESULT CARD */
-.rc{background:#1a1d27;border:1px solid #2e3250;border-radius:8px;overflow:hidden}
+/* CARDS */
+.rc{background:#1a1d27;border:1px solid #2e3250;border-radius:8px;margin-bottom:8px;overflow:hidden}
 .rc.ok{border-left:3px solid #22c55e}
 .rc.fail{border-left:3px solid #ef4444}
 .rc.pend{border-left:3px solid #f59e0b}
 
-.rc-head{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;user-select:none}
+.rc-head{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer;user-select:none}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dot.ok{background:#22c55e}.dot.fail{background:#ef4444;box-shadow:0 0 4px #ef4444}.dot.pend{background:#f59e0b;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -101,66 +83,63 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
 .bs{font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600}
 .bs.ok{background:rgba(34,197,94,.15);color:#22c55e}.bs.fail{background:rgba(239,68,68,.15);color:#ef4444}.bs.pend{background:rgba(245,158,11,.15);color:#f59e0b}
 .elapsed{font-size:10px;color:#64748b;min-width:46px;text-align:right}
-.chev{color:#64748b;font-size:10px;transition:transform .2s}
+.chev{color:#64748b;font-size:10px;transition:transform .2s;flex-shrink:0}
 .rc.open .chev{transform:rotate(180deg)}
 
 .rc-body{display:none;padding:0 12px 12px}
 .rc.open .rc-body{display:block}
 
-/* DETAIL GRID */
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
 .di{background:#222638;border-radius:5px;padding:7px 9px}
 .di .k{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:2px}
 .di .v{font-size:11px;font-weight:600;font-family:monospace;word-break:break-all}
-.di .v.ok{color:#22c55e}.di .v.fail{color:#ef4444}
+.di .v.g{color:#22c55e}.di .v.r{color:#ef4444}
 
-.prev-lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px}
+.prev-lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px;margin-top:6px}
 .prev{background:#222638;border-radius:5px;padding:9px;font-family:monospace;font-size:10px;color:#94a3b8;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
 
-/* WSDL GRAPH (inline en card) */
+/* WSDL GRAPH */
 .wg{background:#1e2235;border:1px solid #2e3250;border-radius:8px;padding:14px;margin-bottom:10px}
 .wg-title{font-size:10px;font-weight:700;color:#7b8cff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-.wg-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;gap:8px}
-.wg-node{background:#1a1d27;border:1px solid #2e3250;border-radius:7px;padding:9px 12px;min-width:140px}
+.wg-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wg-node{background:#1a1d27;border:1px solid #2e3250;border-radius:7px;padding:9px 12px;min-width:140px;max-width:280px}
 .wg-node.pub{border-color:#4f6ef7}.wg-node.int{border-color:#f59e0b}
-.wg-node .nl{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:3px}
+.nl{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:3px}
 .wg-node.pub .nl{color:#7b8cff}.wg-node.int .nl{color:#f59e0b}
-.wg-node .nh{font-size:12px;font-weight:700;word-break:break-all}
-.wg-node .np{font-size:9px;color:#64748b;font-family:monospace;word-break:break-all;margin-top:2px}
-.wg-arr{text-align:center;color:#64748b}
-.wg-arr .a{font-size:16px}
-.wg-arr .al{font-size:9px;color:#64748b}
+.nh{font-size:12px;font-weight:700;word-break:break-all}
+.np{font-size:9px;color:#64748b;font-family:monospace;word-break:break-all;margin-top:2px}
+.wg-arr{text-align:center;color:#64748b;flex-shrink:0}
+.wg-arr .a{font-size:16px;display:block}
+.wg-arr .al{font-size:9px}
 
-.wg-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.wg-mi{font-size:10px}.wg-mi .k{color:#64748b}.wg-mi .v{color:#e2e8f0;font-family:monospace;font-weight:600}
+.wg-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.wg-mi{font-size:10px}
+.wg-mi .k{color:#64748b}
+.wg-mi .v{color:#e2e8f0;font-family:monospace;font-weight:600}
 
 .wg-ops{margin-top:10px}
 .wg-ops-lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:5px;font-weight:700}
 .wg-ops-list{display:flex;flex-wrap:wrap;gap:5px}
 .wg-op{background:rgba(79,110,247,.1);border:1px solid rgba(79,110,247,.3);color:#7b8cff;font-size:10px;padding:2px 7px;border-radius:4px;font-family:monospace}
 
-/* WSDL DETAIL (en tab WSDL MAP) */
-.wsdl-grid{display:flex;flex-direction:column;gap:12px}
-.wc{background:#1a1d27;border:1px solid #2e3250;border-left:3px solid #4f6ef7;border-radius:8px;overflow:hidden}
+/* WSDL TAB */
+.wc{background:#1a1d27;border:1px solid #2e3250;border-left:3px solid #4f6ef7;border-radius:8px;margin-bottom:10px;overflow:hidden}
 .wc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.wc-head:hover{background:rgba(79,110,247,.04)}
 .wc-name{font-weight:700;font-size:13px}
-.wc-badges{display:flex;gap:6px;align-items:center}
+.wc-badges{display:flex;gap:8px;align-items:center}
 .wc-body{display:none;padding:0 14px 14px}
 .wc.open .wc-body{display:block}
 .wc.open .chev{transform:rotate(180deg)}
 
-/* PARAMS TABLE */
 .ptable{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 .ptable th{background:#222638;padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:700}
 .ptable td{padding:5px 8px;border-bottom:1px solid #2e3250;font-family:monospace;font-size:10px}
 .ptable tr:last-child td{border-bottom:none}
-.ptable tr:hover td{background:rgba(79,110,247,.04)}
 .tag-in{background:rgba(34,197,94,.12);color:#22c55e;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
 .tag-out{background:rgba(245,158,11,.12);color:#f59e0b;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
 
-/* EXPORT */
 .exp-row{display:flex;gap:7px}
-
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2e3250;border-radius:3px}
 </style>
 </head>
@@ -171,38 +150,34 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
     <div class="hdr-logo">⚡ SAP URL Tester</div>
     <div class="hdr-sub">SOA Manager · API REST · Conectividad desde internet</div>
   </div>
-  <div class="hdr-badge">v2.1</div>
+  <div class="hdr-badge">v2.2</div>
 </div>
 
 <div class="layout">
-<!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-tabs">
     <button class="sb-tab on" onclick="stab('single',this)">URL Única</button>
     <button class="sb-tab" onclick="stab('batch',this)">Batch</button>
   </div>
   <div class="sb-body">
+    <div><label>Usuario SAP</label><input id="gUser" placeholder="RFCUSER"/></div>
+    <div><label>Contraseña SAP</label><input id="gPass" type="password" placeholder="••••••••"/></div>
+    <hr/>
 
-    <div class="fl"><label>Usuario SAP</label><input id="gUser" placeholder="RFCUSER"/></div>
-    <div class="fl"><label>Contraseña SAP</label><input id="gPass" type="password" placeholder="••••••••"/></div>
-    <hr class="divider"/>
-
-    <!-- SINGLE -->
     <div id="tp-single">
       <div style="display:flex;flex-direction:column;gap:9px">
-        <div class="fl"><label>URL</label><input id="sUrl" placeholder="https://host.empresa.cl/sap/bc/..."/></div>
-        <div class="fl"><label>Nombre</label><input id="sName" placeholder="Mi_Servicio_WSDL"/></div>
-        <div class="fl"><label>Tipo</label>
+        <div><label>URL</label><input id="sUrl" placeholder="https://host.empresa.cl/sap/bc/..."/></div>
+        <div><label>Nombre</label><input id="sName" placeholder="Mi_Servicio_WSDL"/></div>
+        <div><label>Tipo</label>
           <select id="sType"><option value="soamanager">SOA Manager (WSDL)</option><option value="apirest">API REST (SICF)</option></select>
         </div>
         <button class="btn btn-p" onclick="testSingle()">▶ Probar URL</button>
       </div>
     </div>
 
-    <!-- BATCH -->
     <div id="tp-batch" style="display:none">
       <div style="display:flex;flex-direction:column;gap:9px">
-        <div class="fl">
+        <div>
           <label>Subir Excel (.xlsx)</label>
           <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
             <div class="dz-icon">📊</div>
@@ -212,18 +187,12 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
           </div>
           <input type="file" id="fi" accept=".xlsx,.xls" onchange="handleFile(this.files[0])"/>
         </div>
-
         <div style="text-align:center;color:#64748b;font-size:10px">— o pega CSV —</div>
-
-        <div class="fl">
-          <textarea id="bCsv" placeholder="nombre,url,tipo&#10;BSEG_WSDL,https://host/sap/bc/srt/wsdl/...,soamanager&#10;API_PEDIDOS,https://host/sap/bc/rest/...,apirest"></textarea>
-        </div>
-
+        <div><textarea id="bCsv" placeholder="nombre,url,tipo&#10;BSEG_WSDL,https://host/sap/bc/srt/wsdl/...,soamanager"></textarea></div>
         <div class="row">
           <button class="btn btn-p" style="flex:1" onclick="testBatch()">▶ Probar Todo</button>
-          <button class="btn btn-g btn-sm" onclick="loadSample()">Ejemplo</button>
+          <button class="btn btn-g" style="padding:8px 10px;font-size:11px" onclick="loadSample()">Ejemplo</button>
         </div>
-
         <div class="prog" id="prog">
           <div class="prog-lbl" id="progLbl">Procesando...</div>
           <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
@@ -231,7 +200,7 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
       </div>
     </div>
 
-    <hr class="divider"/>
+    <hr/>
     <div>
       <label>Exportar</label>
       <div class="exp-row" style="margin-top:6px">
@@ -240,11 +209,9 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
         <button class="btn btn-g" style="flex:1;font-size:11px" onclick="clearAll()">🗑 Limpiar</button>
       </div>
     </div>
-
   </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
   <div class="toolbar">
     <span style="font-size:12px;color:#64748b">Resultados</span>
@@ -254,322 +221,286 @@ textarea{resize:vertical;font-family:'Cascadia Code',monospace;font-size:11px;mi
       <div class="stat pe"><div class="v" id="cPend">0</div><div class="l">Pendiente</div></div>
     </div>
   </div>
-
   <div class="rtabs">
     <button class="rtab on" onclick="rtab('all',this)">Todos</button>
     <button class="rtab" onclick="rtab('wsdl',this)">🔷 WSDL Map</button>
   </div>
-
   <div class="pane on" id="pane-all">
     <div class="empty" id="emptyAll">
       <div class="empty-icon">🔌</div>
-      <p>Ingresa una URL o carga un Excel/CSV<br/>para probar conectividad desde internet</p>
+      <p>Ingresa una URL o carga un Excel/CSV para probar conectividad</p>
     </div>
   </div>
-
   <div class="pane" id="pane-wsdl">
     <div class="empty" id="emptyWsdl">
       <div class="empty-icon">🔷</div>
-      <p>Aquí aparecen los servicios SOA Manager<br/>con WSDL válido — haz click para ver detalles</p>
+      <p>Aquí aparecen los servicios SOA Manager con WSDL válido<br/>Haz click en cada uno para ver detalles internos</p>
     </div>
-    <div class="wsdl-grid" id="wsdlGrid"></div>
   </div>
 </main>
 </div>
 
 <script>
-let results = [];
+let results=[];
 
-// ── TABS ──────────────────────────────────────────────────────
-function stab(id, btn) {
-  document.querySelectorAll('.sb-tab').forEach(b => b.classList.remove('on'));
+function stab(id,btn){
+  document.querySelectorAll('.sb-tab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('tp-single').style.display = id==='single'?'block':'none';
-  document.getElementById('tp-batch').style.display  = id==='batch' ?'block':'none';
+  document.getElementById('tp-single').style.display=id==='single'?'flex':'none';
+  document.getElementById('tp-batch').style.display=id==='batch'?'flex':'none';
+  if(id==='single') document.getElementById('tp-single').style.flexDirection='column';
 }
-function rtab(id, btn) {
-  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('on'));
+function rtab(id,btn){
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('pane-all').classList.toggle('on',  id==='all');
-  document.getElementById('pane-wsdl').classList.toggle('on', id==='wsdl');
+  document.getElementById('pane-all').className='pane'+(id==='all'?' on':'');
+  document.getElementById('pane-wsdl').className='pane'+(id==='wsdl'?' on':'');
 }
 
-// ── DRAG DROP ─────────────────────────────────────────────────
-const dz = document.getElementById('dz');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
+// DRAG DROP
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');handleFile(e.dataTransfer.files[0]);});
 
-async function handleFile(file) {
-  if (!file) return;
-  document.getElementById('dzOk').textContent = '⏳ Leyendo ' + file.name + '...';
-  const fd = new FormData(); fd.append('file', file);
-  try {
-    const r = await fetch('/api/parse-excel', { method:'POST', body:fd });
-    const d = await r.json();
-    if (d.error) { document.getElementById('dzOk').textContent = '❌ ' + d.error; return; }
-    document.getElementById('bCsv').value = d.urls.map(u => `${u.name},${u.url},${u.type}`).join('\n');
-    document.getElementById('dzOk').textContent = `✅ ${file.name} — ${d.count} URLs cargadas`;
-  } catch(e) {
-    document.getElementById('dzOk').textContent = '❌ ' + e.message;
-  }
+async function handleFile(file){
+  if(!file)return;
+  document.getElementById('dzOk').textContent='⏳ Leyendo '+file.name+'...';
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const r=await fetch('/api/parse-excel',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){document.getElementById('dzOk').textContent='❌ '+d.error;return;}
+    document.getElementById('bCsv').value=d.urls.map(u=>`${u.name},${u.url},${u.type}`).join('\n');
+    document.getElementById('dzOk').textContent=`✅ ${file.name} — ${d.count} URLs cargadas`;
+  }catch(e){document.getElementById('dzOk').textContent='❌ '+e.message;}
 }
 
-// ── CREDS ─────────────────────────────────────────────────────
-function creds() { return { user: document.getElementById('gUser').value.trim(), pass: document.getElementById('gPass').value.trim() }; }
+function creds(){return{user:document.getElementById('gUser').value.trim(),pass:document.getElementById('gPass').value.trim()};}
 
-// ── TEST SINGLE ───────────────────────────────────────────────
-async function testSingle() {
-  const url = document.getElementById('sUrl').value.trim();
-  const name = document.getElementById('sName').value.trim() || url;
-  const type = document.getElementById('sType').value;
-  if (!url) { alert('Ingresa una URL'); return; }
-  const { user, pass } = creds();
-  const card = mkCard({ name, url, type });
-  const data = await doTest({ url, username:user, password:pass, type });
-  data.name = name;
-  fillCard(card, data);
+async function testSingle(){
+  const url=document.getElementById('sUrl').value.trim();
+  const name=document.getElementById('sName').value.trim()||url;
+  const type=document.getElementById('sType').value;
+  if(!url){alert('Ingresa una URL');return;}
+  const{user,pass}=creds();
+  const card=mkCard({name,url,type});
+  const data=await doTest({url,username:user,password:pass,type});
+  data.name=name;
+  fillCard(card,data);
   results.push(data);
-  if (data.ok && data.wsdl_info) mkWsdlCard(data);
+  if(data.ok&&data.wsdl_info)mkWsdlCard(data);
 }
 
-// ── TEST BATCH ────────────────────────────────────────────────
-async function testBatch() {
-  const csv = document.getElementById('bCsv').value.trim();
-  if (!csv) { alert('Carga un Excel o pega URLs en CSV'); return; }
-  const { user, pass } = creds();
+async function testBatch(){
+  const csv=document.getElementById('bCsv').value.trim();
+  if(!csv){alert('Carga un Excel o pega URLs en CSV');return;}
+  const{user,pass}=creds();
+  const lines=csv.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+  const urls=lines.map(line=>{
+    const p=line.split(',').map(x=>x.trim());
+    if(p[0].startsWith('http'))return{name:p[0],url:p[0],type:p[1]||'apirest'};
+    return{name:p[0],url:p[1],type:p[2]||'apirest'};
+  }).filter(u=>u.url&&u.url.startsWith('http'));
+  if(!urls.length){alert('No se detectaron URLs válidas');return;}
 
-  const lines = csv.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-  const urls = lines.map(line => {
-    const p = line.split(',').map(x=>x.trim());
-    if (p[0].startsWith('http')) return { name:p[0], url:p[0], type:p[1]||'apirest' };
-    return { name:p[0], url:p[1], type:p[2]||'apirest' };
-  }).filter(u => u.url && u.url.startsWith('http'));
+  document.getElementById('prog').style.display='block';
+  document.getElementById('progFill').style.width='0%';
 
-  if (!urls.length) { alert('No se detectaron URLs válidas'); return; }
+  const cards={};
+  urls.forEach(u=>{cards[u.url]=mkCard(u);});
 
-  const prog = document.getElementById('prog');
-  const fill = document.getElementById('progFill');
-  const lbl  = document.getElementById('progLbl');
-  prog.style.display = 'block'; fill.style.width='0%';
-
-  const cards = {};
-  urls.forEach(u => { cards[u.url] = mkCard(u); });
-
-  let done = 0;
-  const C = 5;
-  for (let i=0; i<urls.length; i+=C) {
-    const batch = urls.slice(i,i+C);
-    await Promise.all(batch.map(async item => {
-      const data = await doTest({ url:item.url, username:user, password:pass, type:item.type });
-      data.name = item.name;
-      fillCard(cards[item.url], data);
+  let done=0;
+  for(let i=0;i<urls.length;i+=5){
+    const batch=urls.slice(i,i+5);
+    await Promise.all(batch.map(async item=>{
+      const data=await doTest({url:item.url,username:user,password:pass,type:item.type});
+      data.name=item.name;
+      fillCard(cards[item.url],data);
       results.push(data);
-      if (data.ok && data.wsdl_info) mkWsdlCard(data);
+      if(data.ok&&data.wsdl_info)mkWsdlCard(data);
       done++;
-      fill.style.width = Math.round(done/urls.length*100)+'%';
-      lbl.textContent = `Procesando ${done}/${urls.length}...`;
+      document.getElementById('progFill').style.width=Math.round(done/urls.length*100)+'%';
+      document.getElementById('progLbl').textContent=`Procesando ${done}/${urls.length}...`;
     }));
   }
-  lbl.textContent = `✓ Completado — ${urls.length} URLs probadas`;
-  setTimeout(() => { prog.style.display='none'; }, 3000);
+  document.getElementById('progLbl').textContent=`✓ Completado — ${urls.length} URLs`;
+  setTimeout(()=>{document.getElementById('prog').style.display='none';},3000);
 }
 
-async function doTest(payload) {
-  try {
-    const r = await fetch('/api/test-url', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+async function doTest(payload){
+  try{
+    const r=await fetch('/api/test-url',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     return await r.json();
-  } catch(e) {
-    return { ok:false, reachable:false, error:e.message, error_type:'ERROR INTERNO' };
-  }
+  }catch(e){return{ok:false,reachable:false,error:e.message,error_type:'ERROR INTERNO'};}
 }
 
-// ── CARDS ─────────────────────────────────────────────────────
-function mkCard(item) {
-  document.getElementById('emptyAll').style.display='none';
-  const pane = document.getElementById('pane-all');
-  const d = document.createElement('div');
-  d.className = 'rc pend';
-  const typeLabel = item.type==='soamanager' ? 'SOA' : 'REST';
-  const typeClass  = item.type==='soamanager' ? 'soa' : 'rest';
-  d.innerHTML = `
-    <div class="rc-head" onclick="this.parentElement.classList.toggle('open')">
-      <span class="dot pend"></span>
-      <div class="rc-names">
-        <div class="rc-name">${esc(item.name||item.url)}</div>
-        <div class="rc-url">${esc(item.url||'')}</div>
-      </div>
-      <div class="rc-meta">
-        <span class="bt ${typeClass}">${typeLabel}</span>
-        <span class="bs pend">Probando...</span>
-        <span class="elapsed">—</span>
-        <span class="chev">▼</span>
-      </div>
-    </div>
-    <div class="rc-body"></div>`;
-  pane.insertBefore(d, pane.firstChild);
+function mkCard(item){
+  // Quitar empty state
+  const ea=document.getElementById('emptyAll');
+  if(ea)ea.style.display='none';
+  
+  const pane=document.getElementById('pane-all');
+  const d=document.createElement('div');
+  d.className='rc pend';
+  const tl=item.type==='soamanager'?'SOA':'REST';
+  const tc=item.type==='soamanager'?'soa':'rest';
+  d.innerHTML=`
+<div class="rc-head" onclick="this.parentElement.classList.toggle('open')">
+  <span class="dot pend"></span>
+  <div class="rc-names">
+    <div class="rc-name">${esc(item.name||item.url)}</div>
+    <div class="rc-url">${esc(item.url||'')}</div>
+  </div>
+  <div class="rc-meta">
+    <span class="bt ${tc}">${tl}</span>
+    <span class="bs pend">Probando...</span>
+    <span class="elapsed">—</span>
+    <span class="chev">▼</span>
+  </div>
+</div>
+<div class="rc-body"></div>`;
+  pane.insertBefore(d,pane.firstChild);
   updateCounters();
   return d;
 }
 
-function fillCard(card, data) {
-  const ok = data.ok;
-  card.className = 'rc ' + (ok?'ok':'fail');
-  card.querySelector('.dot').className = 'dot ' + (ok?'ok':'fail');
-  const bs = card.querySelector('.bs');
-  bs.className = 'bs ' + (ok?'ok':'fail');
-  if (!data.reachable) bs.textContent = data.error_type || 'Sin acceso';
-  else bs.textContent = `HTTP ${data.status} — ${data.auth_status||''}`;
-  card.querySelector('.elapsed').textContent = data.elapsed_ms ? data.elapsed_ms+'ms' : '—';
-  card.querySelector('.rc-body').innerHTML = buildBody(data);
+function fillCard(card,data){
+  const ok=data.ok;
+  card.className='rc '+(ok?'ok':'fail');
+  card.querySelector('.dot').className='dot '+(ok?'ok':'fail');
+  const bs=card.querySelector('.bs');
+  bs.className='bs '+(ok?'ok':'fail');
+  if(!data.reachable)bs.textContent=data.error_type||'Sin acceso';
+  else bs.textContent=`HTTP ${data.status} — ${data.auth_status||''}`;
+  card.querySelector('.elapsed').textContent=data.elapsed_ms?data.elapsed_ms+'ms':'—';
+  card.querySelector('.rc-body').innerHTML=buildBody(data);
   updateCounters();
 }
 
-function buildBody(d) {
-  let html = '';
-
-  // WSDL graph inline
-  if (d.wsdl_info && d.ok) html += buildWgraph(d.wsdl_info);
-
-  // Detail grid
-  const rows = [
-    ['URL', d.url||'—'], ['HTTP', d.status ? `${d.status} ${d.statusText||''}` : '—'],
-    ['Tiempo', d.elapsed_ms ? d.elapsed_ms+'ms' : '—'], ['Accesible', d.reachable?'✓ Sí':'✗ No'],
-    ['Auth', d.auth_status||'—'], ['Content-Type', d.content_type||'—'],
+function buildBody(d){
+  let h='';
+  if(d.wsdl_info&&d.ok)h+=buildWg(d.wsdl_info);
+  const rows=[
+    ['URL',d.url||'—'],['HTTP',d.status?`${d.status} ${d.statusText||''}`:'—'],
+    ['Tiempo',d.elapsed_ms?d.elapsed_ms+'ms':'—'],['Accesible',d.reachable?'✓ Sí':'✗ No'],
+    ['Auth',d.auth_status||'—'],['Content-Type',d.content_type||'—'],
   ];
-  if (d.type==='soamanager') rows.push(['WSDL válido', d.has_wsdl?'✓ Sí':'✗ No / No detectado']);
-  if (d.error_type) rows.push(['Tipo error', d.error_type]);
-  if (d.error) rows.push(['Detalle', d.error]);
-
-  html += '<div class="dg">';
-  rows.forEach(([k,v]) => {
-    const vc = String(v).startsWith('✓')?'ok':String(v).startsWith('✗')?'fail':'';
-    html += `<div class="di"><div class="k">${k}</div><div class="v ${vc}">${esc(String(v))}</div></div>`;
+  if(d.type==='soamanager')rows.push(['WSDL válido',d.has_wsdl?'✓ Sí':'✗ No']);
+  if(d.error_type)rows.push(['Tipo error',d.error_type]);
+  if(d.error)rows.push(['Detalle',d.error]);
+  h+='<div class="dg">';
+  rows.forEach(([k,v])=>{
+    const vc=String(v).startsWith('✓')?'g':String(v).startsWith('✗')?'r':'';
+    h+=`<div class="di"><div class="k">${k}</div><div class="v ${vc}">${esc(String(v))}</div></div>`;
   });
-  html += '</div>';
-
-  if (d.body_preview && !d.wsdl_info) {
-    html += `<div class="prev-lbl">Preview respuesta</div><div class="prev">${esc(d.body_preview)}</div>`;
-  }
-  return html;
-}
-
-function buildWgraph(w) {
-  let pubHost='', pubPath='', intHost='', intPath='';
-  try { const u=new URL(w.public_url||''); pubHost=u.hostname; pubPath=u.pathname; } catch(e){}
-  try { const u=new URL(w.internal_url||''); intHost=u.hostname; intPath=u.pathname; } catch(e){}
-  const hasMap = pubHost && intHost && pubHost!==intHost;
-
-  let h = `<div class="wg"><div class="wg-title">🔷 Mapeo WSDL</div><div class="wg-flow">`;
-  h += `<div class="wg-node pub"><div class="nl">🌐 URL Pública</div><div class="nh">${esc(pubHost||'—')}</div><div class="np">${esc(pubPath)}</div></div>`;
-  if (hasMap) {
-    h += `<div class="wg-arr"><div class="a">→</div><div class="al">Reverse Proxy</div></div>`;
-    h += `<div class="wg-node int"><div class="nl">🏭 SAP Interno</div><div class="nh">${esc(intHost)}</div><div class="np">${esc(intPath)}</div></div>`;
-  }
-  h += `</div>`;
-
-  // Meta
-  h += `<div class="wg-meta">`;
-  if (w.service_name) h += `<div class="wg-mi"><span class="k">Servicio: </span><span class="v">${esc(w.service_name)}</span></div>`;
-  if (w.port_name) h += `<div class="wg-mi"><span class="k">Port: </span><span class="v">${esc(w.port_name)}</span></div>`;
-  h += `</div>`;
-
-  // Operaciones
-  if (w.operations && w.operations.length) {
-    h += `<div class="wg-ops"><div class="wg-ops-lbl">Operaciones (${w.operations.length})</div><div class="wg-ops-list">`;
-    w.operations.forEach(op => { h += `<span class="wg-op">${esc(op)}</span>`; });
-    h += `</div></div>`;
-  }
-  h += `</div>`;
+  h+='</div>';
+  if(d.body_preview&&!d.wsdl_info)h+=`<div class="prev-lbl">Preview</div><div class="prev">${esc(d.body_preview)}</div>`;
   return h;
 }
 
-// ── WSDL MAP TAB ──────────────────────────────────────────────
-function mkWsdlCard(data) {
-  document.getElementById('emptyWsdl').style.display='none';
-  const grid = document.getElementById('wsdlGrid');
-  const w = data.wsdl_info;
-  const d = document.createElement('div');
-  d.className = 'wc';
-
-  let pubHost='', pubPath='', intHost='', intPath='';
-  try { const u=new URL(w.public_url||''); pubHost=u.hostname; pubPath=u.pathname; } catch(e){}
-  try { const u=new URL(w.internal_url||''); intHost=u.hostname; intPath=u.pathname; } catch(e){}
-  const hasMap = pubHost && intHost && pubHost!==intHost;
-
-  // Tabla de operaciones con params (extraídos del WSDL)
-  let opsTable = '';
-  if (w.operations && w.operations.length) {
-    opsTable = `<table class="ptable">
-      <thead><tr><th>Operación</th><th>Dirección</th><th>Mensaje</th></tr></thead><tbody>`;
-    w.operations.forEach(op => {
-      const inMsg  = w.op_messages?.[op]?.input  || op+'Request';
-      const outMsg = w.op_messages?.[op]?.output || op+'Response';
-      opsTable += `<tr><td>${esc(op)}</td><td><span class="tag-in">IN</span></td><td>${esc(inMsg)}</td></tr>`;
-      opsTable += `<tr><td></td><td><span class="tag-out">OUT</span></td><td>${esc(outMsg)}</td></tr>`;
-    });
-    opsTable += `</tbody></table>`;
+function buildWg(w){
+  let ph='',pp='',ih='',ip='';
+  try{const u=new URL(w.public_url||'');ph=u.hostname;pp=u.pathname;}catch(e){}
+  try{const u=new URL(w.internal_url||'');ih=u.hostname;ip=u.pathname;}catch(e){}
+  const hasMap=ph&&ih&&ph!==ih;
+  let h=`<div class="wg"><div class="wg-title">🔷 Mapeo WSDL</div><div class="wg-flow">`;
+  h+=`<div class="wg-node pub"><div class="nl">🌐 URL Pública</div><div class="nh">${esc(ph||'—')}</div><div class="np">${esc(pp)}</div></div>`;
+  if(hasMap){
+    h+=`<div class="wg-arr"><span class="a">→</span><span class="al">Proxy</span></div>`;
+    h+=`<div class="wg-node int"><div class="nl">🏭 SAP Interno</div><div class="nh">${esc(ih)}</div><div class="np">${esc(ip)}</div></div>`;
   }
-
-  d.innerHTML = `
-    <div class="wc-head" onclick="this.parentElement.classList.toggle('open')">
-      <div class="wc-name">${esc(data.name||data.url)}</div>
-      <div class="wc-badges">
-        <span class="bs ok">HTTP ${data.status}</span>
-        <span class="elapsed">${data.elapsed_ms}ms</span>
-        <span class="chev">▼</span>
-      </div>
-    </div>
-    <div class="wc-body">
-      ${buildWgraph(w)}
-      ${opsTable ? `<div class="prev-lbl" style="margin-top:8px">Operaciones del servicio</div>${opsTable}` : ''}
-      ${w.internal_url ? `<div class="prev-lbl" style="margin-top:8px">Endpoint interno SAP</div><div class="prev">${esc(w.internal_url)}</div>` : ''}
-    </div>`;
-  grid.appendChild(d);
+  h+=`</div>`;
+  if(w.service_name||w.port_name){
+    h+=`<div class="wg-meta">`;
+    if(w.service_name)h+=`<div class="wg-mi"><span class="k">Servicio: </span><span class="v">${esc(w.service_name)}</span></div>`;
+    if(w.port_name)h+=`<div class="wg-mi"><span class="k">Port: </span><span class="v">${esc(w.port_name)}</span></div>`;
+    h+=`</div>`;
+  }
+  if(w.operations&&w.operations.length){
+    h+=`<div class="wg-ops"><div class="wg-ops-lbl">Operaciones (${w.operations.length})</div><div class="wg-ops-list">`;
+    w.operations.forEach(op=>{h+=`<span class="wg-op">${esc(op)}</span>`;});
+    h+=`</div></div>`;
+  }
+  h+=`</div>`;
+  return h;
 }
 
-// ── COUNTERS ──────────────────────────────────────────────────
-function updateCounters() {
-  const cards = document.querySelectorAll('#pane-all .rc');
-  let ok=0, fail=0, pend=0;
-  cards.forEach(c => { if(c.classList.contains('ok'))ok++; else if(c.classList.contains('fail'))fail++; else pend++; });
-  document.getElementById('cOk').textContent   = ok;
-  document.getElementById('cFail').textContent = fail;
-  document.getElementById('cPend').textContent = pend;
+function mkWsdlCard(data){
+  document.getElementById('emptyWsdl').style.display='none';
+  const pane=document.getElementById('pane-wsdl');
+  const w=data.wsdl_info;
+  const d=document.createElement('div');
+  d.className='wc';
+  let opsTable='';
+  if(w.operations&&w.operations.length){
+    opsTable=`<table class="ptable"><thead><tr><th>Operación</th><th>Dir</th><th>Mensaje</th></tr></thead><tbody>`;
+    w.operations.forEach(op=>{
+      const im=w.op_messages?.[op]?.input||op+'Request';
+      const om=w.op_messages?.[op]?.output||op+'Response';
+      opsTable+=`<tr><td rowspan="2"><strong>${esc(op)}</strong></td><td><span class="tag-in">IN</span></td><td>${esc(im)}</td></tr>`;
+      opsTable+=`<tr><td><span class="tag-out">OUT</span></td><td>${esc(om)}</td></tr>`;
+    });
+    opsTable+=`</tbody></table>`;
+  }
+  d.innerHTML=`
+<div class="wc-head" onclick="this.parentElement.classList.toggle('open')">
+  <div class="wc-name">${esc(data.name||data.url)}</div>
+  <div class="wc-badges">
+    <span class="bs ok">HTTP ${data.status}</span>
+    <span class="elapsed">${data.elapsed_ms}ms</span>
+    <span class="chev">▼</span>
+  </div>
+</div>
+<div class="wc-body">
+  ${buildWg(w)}
+  ${opsTable?`<div class="prev-lbl" style="margin-top:8px">Operaciones del servicio</div>${opsTable}`:''}
+  ${w.internal_url?`<div class="prev-lbl" style="margin-top:8px">Endpoint interno SAP</div><div class="prev">${esc(w.internal_url)}</div>`:''}
+</div>`;
+  pane.appendChild(d);
 }
 
-// ── EXPORT / CLEAR ────────────────────────────────────────────
-function exportCSV() {
-  if (!results.length) return alert('Sin resultados');
-  const h = ['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl','wsdl_service','wsdl_ops','wsdl_public_url','wsdl_internal_url'];
-  const rows = results.map(r => h.map(k => {
-    if (k==='wsdl_service') return JSON.stringify(r.wsdl_info?.service_name||'');
-    if (k==='wsdl_ops') return JSON.stringify((r.wsdl_info?.operations||[]).join('|'));
-    if (k==='wsdl_public_url') return JSON.stringify(r.wsdl_info?.public_url||'');
-    if (k==='wsdl_internal_url') return JSON.stringify(r.wsdl_info?.internal_url||'');
+function updateCounters(){
+  let ok=0,fail=0,pend=0;
+  document.querySelectorAll('#pane-all .rc').forEach(c=>{
+    if(c.classList.contains('ok'))ok++;
+    else if(c.classList.contains('fail'))fail++;
+    else pend++;
+  });
+  document.getElementById('cOk').textContent=ok;
+  document.getElementById('cFail').textContent=fail;
+  document.getElementById('cPend').textContent=pend;
+}
+
+function exportCSV(){
+  if(!results.length)return alert('Sin resultados');
+  const h=['name','url','type','ok','status','auth_status','elapsed_ms','error_type','has_wsdl','wsdl_service','wsdl_ops','wsdl_public','wsdl_internal'];
+  const rows=results.map(r=>h.map(k=>{
+    if(k==='wsdl_service')return JSON.stringify(r.wsdl_info?.service_name||'');
+    if(k==='wsdl_ops')return JSON.stringify((r.wsdl_info?.operations||[]).join('|'));
+    if(k==='wsdl_public')return JSON.stringify(r.wsdl_info?.public_url||'');
+    if(k==='wsdl_internal')return JSON.stringify(r.wsdl_info?.internal_url||'');
     return JSON.stringify(r[k]??'');
   }).join(','));
-  dl('sap-test.csv', [h.join(','),...rows].join('\n'), 'text/csv');
+  dl('sap-test.csv',[h.join(','),...rows].join('\n'),'text/csv');
 }
-function exportJSON() {
-  if (!results.length) return alert('Sin resultados');
-  dl('sap-test.json', JSON.stringify(results,null,2), 'application/json');
+function exportJSON(){
+  if(!results.length)return alert('Sin resultados');
+  dl('sap-test.json',JSON.stringify(results,null,2),'application/json');
 }
-function clearAll() {
-  results = [];
-  document.getElementById('pane-all').innerHTML = `<div class="empty" id="emptyAll"><div class="empty-icon">🔌</div><p>Ingresa una URL o carga un Excel/CSV<br/>para probar conectividad desde internet</p></div>`;
-  document.getElementById('wsdlGrid').innerHTML = '';
-  document.getElementById('emptyWsdl').style.display = 'flex';
+function clearAll(){
+  results=[];
+  const pa=document.getElementById('pane-all');
+  pa.innerHTML='<div class="empty" id="emptyAll"><div class="empty-icon">🔌</div><p>Ingresa una URL o carga un Excel/CSV para probar conectividad</p></div>';
+  const pw=document.getElementById('pane-wsdl');
+  pw.innerHTML='<div class="empty" id="emptyWsdl"><div class="empty-icon">🔷</div><p>Aquí aparecen los servicios SOA Manager con WSDL válido</p></div>';
   updateCounters();
 }
-function dl(name, content, mime) {
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click();
+function loadSample(){
+  document.getElementById('bCsv').value=`zb2b_ws_cliente,https://intercekpfp.kupfer.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zb2b_ws_cliente/300/zb2b_ws_cliente?sap-client=300,soamanager\nAPI_REST,https://intercekpfp.kupfer.cl/sap/bc/rest/pedidos,apirest`;
 }
-function loadSample() {
-  document.getElementById('bCsv').value=`zb2b_ws_cliente,https://intercekpfp.kupfer.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zb2b_ws_cliente/300/zb2b_ws_cliente?sap-client=300,soamanager
-API_PEDIDOS,https://intercekpfp.kupfer.cl/sap/bc/rest/pedidos,apirest`;
-}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function dl(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;a.click();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
