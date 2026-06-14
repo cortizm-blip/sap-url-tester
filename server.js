@@ -139,12 +139,17 @@ app.post("/api/parse-excel", upload.single("file"), (req, res) => {
 // ── Export Excel con estatus coloreado ────────────────────────
 app.post("/api/export-excel", (req, res) => {
   try {
-    const { results, fileName } = req.body;
+    const { results, fileName, xlsxBase64 } = req.body;
     if (!results || !results.length) return res.status(400).json({ error: "Sin resultados" });
-    if (!tempExcelPath || !fs.existsSync(tempExcelPath))
-      return res.status(400).json({ error: "No hay Excel cargado. Sube el archivo Excel primero." });
 
-    const buffer = fs.readFileSync(tempExcelPath);
+    let buffer;
+    if (tempExcelPath && fs.existsSync(tempExcelPath)) {
+      buffer = fs.readFileSync(tempExcelPath);
+    } else if (xlsxBase64) {
+      buffer = Buffer.from(xlsxBase64, "base64");
+    } else {
+      return res.status(400).json({ error: "No hay Excel cargado. Sube el archivo Excel nuevamente." });
+    }
     const workbook = XLSX.read(buffer, { type: "buffer", cellStyles: true });
     const sheetName = workbook.SheetNames[0];
     const ws = workbook.Sheets[sheetName];
