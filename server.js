@@ -27,13 +27,15 @@ async function testUrl({ url, username, password, type }) {
     if (username && password)
       headers["Authorization"] = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
     if (type === "soamanager") headers["Accept"] = "text/xml,application/xml";
+    // Para API REST usar HEAD (solo conectividad), para SOA Manager usar GET (necesita el WSDL)
+    const method = type === "soamanager" ? "GET" : "HEAD";
     const response = await fetch(url, {
-      method: "GET", headers,
+      method, headers,
       agent: url.startsWith("https") ? httpsAgent : undefined,
       timeout: 10000,
     });
     const elapsed = Date.now() - startTime;
-    const bodyText = await response.text();
+    const bodyText = method === "GET" ? await response.text() : "";
     result.status = response.status;
     result.statusText = response.statusText;
     result.elapsed_ms = elapsed;
@@ -44,10 +46,21 @@ async function testUrl({ url, username, password, type }) {
       result.has_wsdl = bodyText.includes("wsdl:definitions") || bodyText.includes("definitions xmlns");
       if (result.has_wsdl) result.wsdl_info = parseWsdl(bodyText, url);
     }
-    if (response.status === 401) { result.auth_status = "FAIL - Credenciales inválidas"; result.ok = false; }
-    else if (response.status === 403) { result.auth_status = "FAIL - Sin autorización"; result.ok = false; }
-    else if (response.status >= 200 && response.status < 400) { result.auth_status = username ? "OK - Autenticado" : "OK - Sin auth"; result.ok = true; }
-    else { result.auth_status = `HTTP ${response.status}`; result.ok = false; }
+    if (type === "apirest") {
+      // Para REST: cualquier respuesta HTTP = conectividad OK (el servicio puede requerir POST)
+      result.ok = true;
+      if (response.status === 200) result.auth_status = "OK - HTTP 200";
+      else if (response.status === 401) result.auth_status = "Accesible - Requiere Auth";
+      else if (response.status === 403) result.auth_status = "Accesible - Sin permisos";
+      else if (response.status === 404) result.auth_status = "Accesible - Servicio GET no soportado";
+      else if (response.status === 405) result.auth_status = "Accesible - Método no permitido (OK)";
+      else result.auth_status = `Accesible - HTTP ${response.status}`;
+    } else {
+      if (response.status === 401) { result.auth_status = "FAIL - Credenciales inválidas"; result.ok = false; }
+      else if (response.status === 403) { result.auth_status = "FAIL - Sin autorización"; result.ok = false; }
+      else if (response.status >= 200 && response.status < 400) { result.auth_status = username ? "OK - Autenticado" : "OK - Sin auth"; result.ok = true; }
+      else { result.auth_status = `HTTP ${response.status}`; result.ok = false; }
+    }
   } catch (err) {
     result.elapsed_ms = Date.now() - startTime;
     result.reachable = false; result.ok = false; result.error = err.message;
