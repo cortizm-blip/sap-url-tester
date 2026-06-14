@@ -208,6 +208,8 @@ hr{border:none;border-top:1px solid #2e3250}
         <button class="btn btn-g" style="flex:1;font-size:11px" onclick="exportJSON()">{ } JSON</button>
         <button class="btn btn-g" style="flex:1;font-size:11px" onclick="clearAll()">🗑 Limpiar</button>
       </div>
+      <button class="btn btn-p" style="width:100%;font-size:12px;margin-top:6px" onclick="downloadExcel()">📥 Descargar Excel con Estatus</button>
+      </div>
     </div>
   </div>
 </aside>
@@ -242,6 +244,9 @@ hr{border:none;border-top:1px solid #2e3250}
 
 <script>
 let results=[];
+let xlsxBase64='';
+let xlsxFileName='';
+let pendingCount=0;
 
 function stab(id,btn){
   document.querySelectorAll('.sb-tab').forEach(b=>b.classList.remove('on'));
@@ -271,6 +276,8 @@ async function handleFile(file){
     const r=await fetch('/api/parse-excel',{method:'POST',body:fd});
     const d=await r.json();
     if(d.error){document.getElementById('dzOk').textContent='❌ '+d.error;return;}
+    xlsxBase64=d.xlsxBase64||'';
+    xlsxFileName=d.fileName||'';
     document.getElementById('bCsv').value=d.urls.map(u=>`${u.name},${u.url},${u.type}`).join('\n');
     document.getElementById('dzOk').textContent=`✅ ${file.name} — ${d.count} URLs cargadas`;
   }catch(e){document.getElementById('dzOk').textContent='❌ '+e.message;}
@@ -498,6 +505,20 @@ function clearAll(){
 }
 function loadSample(){
   document.getElementById('bCsv').value=`zb2b_ws_cliente,https://intercekpfp.kupfer.cl/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/scs/sap/zb2b_ws_cliente/300/zb2b_ws_cliente?sap-client=300,soamanager\nAPI_REST,https://intercekpfp.kupfer.cl/sap/bc/rest/pedidos,apirest`;
+}
+function downloadExcel(){
+  if(!results.length)return alert('Sin resultados aún');
+  if(!xlsxBase64)return alert('Carga primero el Excel con el botón de subir archivo');
+  fetch('/api/export-excel',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({xlsxBase64,fileName:xlsxFileName,results})
+  }).then(r=>r.blob()).then(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=xlsxFileName.replace('.xlsx','')+'_estatus.xlsx';
+    a.click();
+  }).catch(e=>alert('Error: '+e.message));
 }
 function dl(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;a.click();}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
