@@ -249,5 +249,49 @@ app.post("/api/export-excel", async (req, res) => {
   }
 });
 
+// ── Custom request (mini tester) ─────────────────────────────
+app.post("/api/custom-request", async (req, res) => {
+  const { url, method, body, username, password } = req.body;
+  if (!url) return res.status(400).json({ error: "URL requerida" });
+
+  const startTime = Date.now();
+  try {
+    const headers = {};
+    if (username && password)
+      headers["Authorization"] = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
+    if (body) headers["Content-Type"] = "application/json";
+
+    const fetchOpts = {
+      method: method || "GET",
+      headers,
+      agent: url.startsWith("https") ? httpsAgent : undefined,
+      timeout: 15000,
+    };
+    if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
+      fetchOpts.body = body;
+    }
+
+    const response = await fetch(url, fetchOpts);
+    const elapsed = Date.now() - startTime;
+    const bodyText = await response.text();
+
+    res.json({
+      status: response.status,
+      statusText: response.statusText,
+      elapsed_ms: elapsed,
+      content_type: response.headers.get("content-type") || "",
+      body: bodyText.substring(0, 5000),
+    });
+  } catch (err) {
+    res.json({
+      status: 0,
+      statusText: "Error",
+      elapsed_ms: Date.now() - startTime,
+      error: err.message,
+      body: "",
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`SAP URL Tester en puerto ${PORT}`));
